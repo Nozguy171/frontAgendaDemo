@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import WeekScheduleTable from "@/components/WeekScheduleTable";
 import { Professional } from "../types";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SimpleSelect } from "@/components/ui/select";
 import ToastLite from "@/components/ui/toast-lite";
@@ -57,17 +57,39 @@ export default function ProfessionalDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent
-          className="
-            bg-white/95 backdrop-blur border-violet-200 sm:rounded-3xl rounded-none
-            sm:max-w-4xl sm:w-[92vw] w-screen sm:max-h-[88vh] max-h-[100dvh] h-[100dvh] sm:h-auto
-            p-0 overflow-hidden
-          "
-        >
-          {/* Radix requiere título accesible */}
-          <DialogTitle className="sr-only">
-            {pro?.name ?? "Detalle de profesional"}
-          </DialogTitle>
+<DialogContent
+  className="
+    bg-white/95 backdrop-blur border-violet-200 sm:rounded-3xl rounded-none
+    sm:max-w-4xl sm:w-[92vw] w-screen sm:max-h-[88vh] max-h-[100dvh] h-[100dvh] sm:h-auto
+    p-0 overflow-hidden
+  "
+>
+  {/* Botón cerrar (X) fijo arriba derecha */}
+  <DialogClose
+    asChild
+  >
+    <button
+      type="button"
+      aria-label="Cerrar"
+      className="
+        absolute right-3 top-3 z-50
+        inline-flex h-9 w-9 items-center justify-center
+        rounded-full border bg-white/90 text-slate-600
+        hover:bg-white hover:text-slate-900 shadow-sm
+        focus:outline-none focus:ring-2 focus:ring-violet-500
+        active:scale-[0.98] transition
+      "
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18"/>
+      </svg>
+    </button>
+  </DialogClose>
+
+  {/* Radix requiere título accesible */}
+  <DialogTitle className="sr-only">
+    {pro?.name ?? "Detalle de profesional"}
+  </DialogTitle>
 
           {pro && (
             <div className="flex flex-col h-full">
