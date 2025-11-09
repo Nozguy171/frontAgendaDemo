@@ -15,12 +15,12 @@ import ServicesCarousel from "@/components/ServicesCarousel";
 import Image from "next/image";
 
 const services = [
-  { title: "Limpieza dental", desc: "Profilaxis y pulido.", imageUrl: "/images/servicios/limpieza.jpg" },
-  { title: "Resinas y caries", desc: "Restauraciones estéticas.", imageUrl: "/images/servicios/resinas.jpg" },
-  { title: "Ortodoncia", desc: "Brackets y alineadores.", imageUrl: "/images/servicios/ortodoncia.jpg" },
-  { title: "Endodoncia", desc: "Tratamientos de conducto.", imageUrl: "/images/servicios/endodoncia.jpg" },
-  { title: "Extracciones", desc: "Cirugía simple y compleja.", imageUrl: "/images/servicios/extracciones.jpg" },
-  { title: "Blanqueamiento", desc: "Resultados visibles.", imageUrl: "/images/servicios/blanqueamiento.jpg" },
+  { title: "Limpieza dental", desc: "Profilaxis y pulido.", imageUrl: "/images/limpieza.jpg" },
+  { title: "Resinas y caries", desc: "Restauraciones estéticas.", imageUrl: "/images/resinas.jpg" },
+  { title: "Ortodoncia", desc: "Brackets y alineadores.", imageUrl: "/images/ortodoncia.jpg" },
+  { title: "Endodoncia", desc: "Tratamientos de conducto.", imageUrl: "/images/endodoncia.jpg" },
+  { title: "Extracciones", desc: "Cirugía simple y compleja.", imageUrl: "/images/extracciones.jpg" },
+  { title: "Blanqueamiento", desc: "Resultados visibles.", imageUrl: "/images/blanqueamiento.jpg" },
 ];
 
 const MAP = {
@@ -87,7 +87,7 @@ export default function Page() {
           <div className="relative">
 <div className="aspect-[4/3] w-full rounded-2xl overflow-hidden border relative shadow-sm">
   <Image
-    src="/images/servicios/dentista.webp"
+    src="/images/dentista.webp"
     alt="Consultorio dental moderno en Mexicali"
     fill
     priority
