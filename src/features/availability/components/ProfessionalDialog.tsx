@@ -172,7 +172,7 @@ export default function ProfessionalDialog({
                     </div>
                   </div>
 
-                  <div className="px-6 pb-24 overflow-auto sm:max-h-[62vh]">
+                  <div className="px-6 pb-24 overflow-hidden sm:max-h-[62vh]">
                     <WeekScheduleTable
                       pro={pro}
                       onPick={(p) => {

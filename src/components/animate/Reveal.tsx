@@ -1,53 +1,43 @@
-"use client";
-import { motion, useAnimation, useInView, type Variants, type HTMLMotionProps } from "framer-motion";
-import { useEffect, useRef } from "react";
+"use client"
 
-interface RevealProps extends HTMLMotionProps<"div"> {
-  variants?: Variants;
-  amount?: number;       // Qué tanto del elemento debe entrar al viewport (0–1)
-  margin?: string;       // Margen de activación tipo CSS ("-10% 0px")
-  once?: boolean;        // Si true, solo anima la primera vez
-  retrigger?: boolean;   // Si true, re-anima cada vez que entra/sale
+import type React from "react"
+
+import { useInView } from "framer-motion"
+import { motion, type MotionProps } from "framer-motion"
+import { useRef } from "react"
+
+interface RevealProps extends MotionProps {
+  children: React.ReactNode
+  variants?: any
+  className?: string
+  retrigger?: boolean
+  amount?: number | "all" | "some"
 }
 
 export default function Reveal({
   children,
-  className,
   variants,
-  amount = 0.25,
-  margin = "-10% 0px -10% 0px",
-  once = false,
-  retrigger = true,
-  ...rest
+  className = "",
+  retrigger = false,
+  amount = 0.5,
+  ...props
 }: RevealProps) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const controls = useAnimation();
-
-  const inView = useInView(ref, {
-    amount,
-    once,
-    // fix del tipo MarginType para TypeScript
-    margin: margin as unknown as any,
-  });
-
-  useEffect(() => {
-    if (inView) {
-      controls.start("show");
-    } else if (retrigger) {
-      controls.start("hidden");
-    }
-  }, [inView, retrigger, controls]);
+  const ref = useRef(null)
+  const isInView = useInView(ref, {
+    once: !retrigger,
+    amount: amount as any,
+  })
 
   return (
     <motion.div
       ref={ref}
       initial="hidden"
-      animate={controls}
+      animate={isInView ? "show" : "hidden"}
       variants={variants}
       className={className}
-      {...rest}
+      {...props}
     >
       {children}
     </motion.div>
-  );
+  )
 }

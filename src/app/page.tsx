@@ -1,18 +1,18 @@
-"use client";
-import Link from "next/link";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Calendar, ShieldCheck, HeartPulse, PhoneCall, MapPin, Sparkles } from "lucide-react";
-import { motion } from "framer-motion";
-import Reveal from "@/components/animate/Reveal";
-import { fadeInUp, fadeIn, stagger } from "@/lib/anim";
-import { Clock, CreditCard, Star, MessageCircle } from "lucide-react";
-import ServicesCarousel from "@/components/ServicesCarousel";
-import Image from "next/image";
+"use client"
+import Link from "next/link"
+import Navbar from "@/components/navbar"
+import Footer from "@/components/footer"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Calendar, ShieldCheck, HeartPulse, MapPin, ArrowRight, Star } from "lucide-react"
+import { motion } from "framer-motion"
+import Reveal from "@/components/animate/Reveal"
+import { fadeInUp, fadeIn, stagger } from "@/lib/anim"
+import ServicesCarousel from "@/components/ServicesCarousel"
+import Image from "next/image"
+import { useState } from "react"
 
 const services = [
   { title: "Limpieza dental", desc: "Profilaxis y pulido.", imageUrl: "/images/limpieza.jpg" },
@@ -21,390 +21,572 @@ const services = [
   { title: "Endodoncia", desc: "Tratamientos de conducto.", imageUrl: "/images/endodoncia.jpg" },
   { title: "Extracciones", desc: "Cirugía simple y compleja.", imageUrl: "/images/extracciones.jpg" },
   { title: "Blanqueamiento", desc: "Resultados visibles.", imageUrl: "/images/blanqueamiento.jpg" },
-];
+]
+
+const equipo = [
+  {
+    name: "Dra. Ana Rodriguez",
+    speciality: "Odontóloga General",
+    experience: "10+ años",
+    imageUrl: "/images/ana.jpg",
+    bio: "Restauraciones estéticas y tratamientos integrales centrados en el paciente.",
+  },
+  {
+    name: "Dr. Luis Méndez",
+    speciality: "Ortodoncista",
+    experience: "12+ años",
+    imageUrl: "/images/luis.jpg",
+    bio: "Brackets y alineadores invisibles con enfoque en estética y función.",
+  },
+  {
+    name: "Dra. Sofía López",
+    speciality: "Endodoncista",
+    experience: "9+ años",
+    imageUrl: "/images/sofia.jpg",
+    bio: "Tratamientos de conducto sin dolor con tecnología de última generación.",
+  },
+]
 
 const MAP = {
-  // Juventud 2000 aprox — ajústalo si ocupas precisión
   lat: 32.60336183437693,
   lng: -115.4771202697527,
-  zoom: 17, // 14–17 recomendado
+  zoom: 17,
   query: "Centro Recreativo Juventud 2000, Mexicali",
-};
+}
 
 const beneficios = [
-  { icon: <HeartPulse className="h-6 w-6"/>, title: "Atención humana", desc: "Explicamos opciones y priorizamos tu comodidad." },
-  { icon: <Calendar className="h-6 w-6"/>, title: "Agenda fácil", desc: "Sin llamadas: agenda en línea y recibe recordatorios." },
-  { icon: <ShieldCheck className="h-6 w-6"/>, title: "Higiene certificada", desc: "Esterilización y materiales de alta calidad." },
-];
+  { icon: <HeartPulse className="h-6 w-6" />, title: "Atención humana", desc: "Explicamos opciones y priorizamos tu comodidad." },
+  { icon: <Calendar className="h-6 w-6" />, title: "Agenda fácil", desc: "Sin llamadas: agenda en línea y recibe recordatorios." },
+  { icon: <ShieldCheck className="h-6 w-6" />, title: "Higiene certificada", desc: "Esterilización y materiales de alta calidad." },
+]
 
 const precios = [
   { name: "Primera consulta", price: "$300 MXN", items: ["Valoración", "Plan de tratamiento", "Radiografía básica*"] },
   { name: "Limpieza profesional", price: "$700 MXN", items: ["Profilaxis completa", "Flúor", "Recomendaciones personalizadas"] },
   { name: "Blanqueamiento", price: "$1,800 MXN", items: ["Sesión en consultorio", "Guía de cuidado", "Seguimiento"] },
-];
+]
+
+const testimonios = [
+  { name: "María García", role: "Paciente", text: "Excelente atención, muy profesionales y amables. Mi sonrisa cambió completamente.", rating: 5 },
+  { name: "Carlos López", role: "Paciente", text: "El mejor servicio dental que he encontrado. Recomendado 100%.", rating: 5 },
+  { name: "Ana Rodríguez", role: "Paciente", text: "Clínica moderna, dentistas expertos. Volveré definitivamente.", rating: 5 },
+]
+
+const whyUs = [
+  { icon: "🎯", title: "Precisión de expertos", desc: "Cada procedimiento con tecnología de punta y técnicas de última generación." },
+  { icon: "⏰", title: "Agendamiento sin estrés", desc: "Citas en línea, recordatorios automáticos, horario extendido hasta las 8 PM." },
+  { icon: "💰", title: "Presupuestos transparentes", desc: "Sin costos ocultos. Cotización completa y planes de pago flexibles." },
+  { icon: "🤝", title: "Trato humano", desc: "Explicamos cada procedimiento. Tu comodidad es nuestra prioridad." },
+]
+
+const certificaciones = [
+  { name: "SEDEC", desc: "Colegio de Cirujanos Dentistas" },
+  { name: "ADA", desc: "Asociación Dental Americana" },
+  { name: "ISO 9001", desc: "Certificación de calidad" },
+  { name: "IMSS", desc: "Afiliado institucional" },
+]
+
+const tratamientos = [
+  { icon: "✨", title: "Blanqueamiento Dental", desc: "Recupera el brillo natural de tu sonrisa con resultados visibles en una sesión.", tiempo: "45-60 min", resultados: "Resultados inmediatos" },
+  { icon: "🦷", title: "Ortodoncia Invisible", desc: "Alineadores transparentes. Nadie notará que los llevas puesto.", tiempo: "Variable", resultados: "6-24 meses" },
+  { icon: "🛡️", title: "Implantes Dentales", desc: "Dientes permanentes que se ven y funcionan como naturales.", tiempo: "Multifase", resultados: "Duran 10+ años" },
+  { icon: "👄", title: "Estética Dental", desc: "Diseño de sonrisa personalizado. Carillas, resinas, contouring.", tiempo: "60-90 min", resultados: "Sonrisa de cine" },
+]
+
+const preguntas = [
+  { q: "¿Duelen los procedimientos?", a: "No. Usamos anestesia local de última generación y técnicas indoloras. Tu comodidad es garantizada." },
+  { q: "¿Cuánto cuesta una sonrisa perfecta?", a: "Depende del tratamiento. Ofrecemos presupuestos sin costo y planes de pago. Agendar una valoración." },
+  { q: "¿Necesito varias citas?", a: "Muchos procedimientos se hacen en una sesión. Te lo confirmaremos en tu consulta inicial." },
+  { q: "¿Aceptan seguros?", a: "Sí. Trabajamos con IMSS, ISSSTE, Seguros Monterrey, y planes dentales privados." },
+  { q: "¿Primera cita es gratis?", a: "La valoración cuesta $300 MXN (reembolsable si tomas tratamiento). Incluye radiografía y plan personalizado." },
+  { q: "¿Cómo agendar?", a: "Ve a /disponibilidad, elige fecha y hora, o envía un WhatsApp. Respuesta en menos de 2 horas." },
+]
 
 export default function Page() {
+  const [openFaq, setOpenFaq] = useState<string | null>(null)
+
   return (
     <>
       <Navbar />
 
-      {/* HERO */}
-      <section className="section">
-        <div className="container grid md:grid-cols-2 gap-10 items-center">
-          {/* Columna izquierda */}
-<Reveal variants={stagger} className="space-y-4" retrigger amount={0.25}>
-            <motion.p variants={fadeInUp} className="inline-flex items-center gap-2 text-sm font-medium text-sky-600 bg-sky-50 border border-sky-100 px-3 py-1 rounded-full mb-0">
-              <Sparkles className="h-4 w-4" /> Tu sonrisa, nuestra prioridad
+      <section id="top" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-accent/5 pt-20">
+        {/* Decoratives */}
+        <div className="absolute top-20 right-10 w-72 h-72 bg-accent/5 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-32 left-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+
+        <div className="container relative z-10 grid md:grid-cols-2 gap-12 items-center py-20">
+          {/* Left */}
+          <Reveal variants={stagger} className="space-y-6" retrigger amount={0.25}>
+            <motion.div variants={fadeInUp} className="flex items-center gap-3">
+              <div className="h-1 w-12 bg-primary"></div>
+              <p className="text-sm uppercase tracking-widest font-semibold text-primary">Tu sonrisa, nuestra misión</p>
+            </motion.div>
+
+            <motion.h1 variants={fadeInUp} className="h1 text-foreground">
+              Dentista moderno en Mexicali
+            </motion.h1>
+
+            <motion.p variants={fadeInUp} className="lead text-lg text-muted-foreground">
+              Tecnología avanzada, dentistas especializados, y atención que te hace sentir en casa. Agenda tu cita sin complicaciones.
             </motion.p>
-            <motion.h1 variants={fadeInUp} className="h1">Dentista en Mexicali — atención moderna y sin complicaciones</motion.h1>
-            <motion.p variants={fadeInUp} className="lead">Limpiezas, resinas, ortodoncia y más. Agenda fácil y recibe recordatorios por WhatsApp.</motion.p>
-<motion.div variants={fadeInUp} className="mt-4 flex flex-wrap gap-4">
-  {/* CTA primario con gradiente */}
-  <Button
-    asChild
-    className="text-base px-5 py-3 rounded-full bg-gradient-to-r from-violet-600 to-indigo-500 text-white shadow-md hover:shadow-lg hover:scale-[1.03] active:scale-[0.98] transition"
-  >
-    <Link href="/disponibilidad">
-      <Calendar className="mr-2 h-5 w-5" />
-      Consulta disponibilidad
-    </Link>
-  </Button>
 
-  {/* Secundario “outline pill” */}
-  <Button
-    asChild
-    variant="outline"
-    className="text-base px-5 py-3 rounded-full border-slate-300 text-slate-700 hover:bg-slate-50"
-  >
-    <a href="#servicios">Ver servicios</a>
-  </Button>
-</motion.div>
+            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 pt-4">
+              <Button asChild className="btn-primary text-base px-8 py-4 flex items-center justify-center group">
+                <Link href="/disponibilidad">
+                  Agendar consulta
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
 
-            <motion.p variants={fadeIn} className="mt-1 text-xs text-slate-500">* Demo: la agenda se conectará más adelante.</motion.p>
+              <Button asChild variant="outline" className="btn-outline text-base flex items-center justify-center bg-transparent">
+                <a href="#servicios">Explorar servicios</a>
+              </Button>
+            </motion.div>
+
+            <motion.p variants={fadeIn} className="text-xs text-muted-foreground pt-2">
+              ✓ Sin compromiso • ✓ Respuesta en 24h • ✓ Consultorio moderno
+            </motion.p>
           </Reveal>
 
-          {/* Columna derecha */}
-          <div className="relative">
-<div className="aspect-[4/3] w-full rounded-2xl overflow-hidden border relative shadow-sm">
-  <Image
-    src="/images/dentista.webp"
-    alt="Consultorio dental moderno en Mexicali"
-    fill
-    priority
-    className="object-cover object-center"
-  />
-  <div className="absolute inset-0 bg-gradient-to-t from-white/10 via-transparent to-transparent" />
-</div>
+          {/* Right: Hero image */}
+          <motion.div variants={fadeIn} initial="hidden" animate="show" className="relative">
+            <div className="aspect-square w-full rounded-2xl overflow-hidden border border-border shadow-2xl">
+              <Image
+                src="/images/dentista.webp"
+                alt="Consultorio dental moderno"
+                fill
+                priority
+                className="object-cover"
+              />
+            </div>
 
-            <motion.div className="absolute -bottom-5 -right-5 hidden md:block" variants={fadeIn} initial="hidden" animate="show">
-              <div className="rounded-2xl border bg-white shadow-md p-4 flex items-center gap-3">
-                <ShieldCheck className="text-sky-600" />
-                <div className="text-sm"><b>Estrictos protocolos</b><br/>Esterilización certificada</div>
+            {/* Floating badge */}
+            <motion.div
+              className="absolute -bottom-6 -left-6 bg-white rounded-xl shadow-lg p-4 border border-border"
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+                <div className="text-sm">
+                  <p className="font-bold">Certificado</p>
+                  <p className="text-xs text-muted-foreground">Esterilización garantizada</p>
+                </div>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* SERVICIOS */}
-<section id="servicios" className="section bg-slate-50 border-y">
-  <div className="container">
-    <h2 className="h2 mb-6">Servicios</h2>
-
-    <ServicesCarousel
-      items={services}
-      className="mt-2"
-      auto
-    />
-  </div>
-</section>
-
-
-{/* BARRA DE INFORMACIÓN (estilo destacado) */}
-<section className="py-10 md:py-12 bg-sky-400/90 text-slate-900 border-y">
-  <div className="container max-w-6xl">
-    <Reveal variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 text-center" retrigger amount={0.25}>
-      {/* Teléfono / WhatsApp */}
-      <motion.div variants={fadeInUp} className="flex flex-col items-center gap-3">
-        <div className="h-16 w-16 rounded-full bg-violet-700 text-white grid place-content-center shadow-md">
-          <MessageCircle className="h-8 w-8" />
-        </div>
-        <p className="text-2xl font-extrabold tracking-tight">964 586 025</p>
-        <p className="uppercase tracking-wide text-sm font-semibold">Número de atención</p>
-      </motion.div>
-
-      {/* Horario */}
-      <motion.div variants={fadeInUp} className="flex flex-col items-center gap-3">
-        <div className="h-16 w-16 rounded-full bg-violet-700 text-white grid place-content-center shadow-md">
-          <Clock className="h-8 w-8" />
-        </div>
-        <p className="text-2xl font-extrabold tracking-tight">8:00 AM - 8:00 PM</p>
-        <p className="uppercase tracking-wide text-sm font-semibold">Horario de atención</p>
-      </motion.div>
-
-      {/* Formas de pago */}
-      <motion.div variants={fadeInUp} className="flex flex-col items-center gap-3">
-        <div className="h-16 w-16 rounded-full bg-violet-700 text-white grid place-content-center shadow-md">
-          <CreditCard className="h-8 w-8" />
-        </div>
-        <p className="text-2xl font-extrabold tracking-tight">Aceptamos todas</p>
-        <p className="uppercase tracking-wide text-sm font-semibold">Formas de pago</p>
-      </motion.div>
-
-      {/* Especialidades */}
-      <motion.div variants={fadeInUp} className="flex flex-col items-center gap-3">
-        <div className="h-16 w-16 rounded-full bg-violet-700 text-white grid place-content-center shadow-md">
-          <Star className="h-8 w-8" />
-        </div>
-        <p className="text-2xl font-extrabold tracking-tight">Conoce</p>
-        <p className="uppercase tracking-wide text-sm font-semibold">Nuestras especialidades</p>
-      </motion.div>
-    </Reveal>
-  </div>
-</section>
-
-
-      {/* BENEFICIOS */}
-      <section id="beneficios" className="section">
+      <section className="py-12 md:py-16 bg-primary text-white border-y">
         <div className="container">
-          <Reveal variants={stagger} className="grid md:grid-cols-3 gap-6" retrigger amount={0.25}>
-            {beneficios.map((b) => (
-              <motion.div key={b.title} variants={fadeInUp}>
-                <Card>
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-xl bg-sky-50 text-sky-600">{b.icon}</div>
-                    <div>
-                      <h3 className="font-semibold">{b.title}</h3>
-                      <p className="mt-1 text-slate-600">{b.desc}</p>
+          <Reveal variants={stagger} className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12" retrigger amount={0.25}>
+            {[
+              { label: "Años de experiencia", value: "+15" },
+              { label: "Pacientes felices", value: "+5000" },
+              { label: "Tratamientos exitosos", value: "99%" },
+              { label: "Horario extendido", value: "8AM-8PM" },
+            ].map((stat, i) => (
+              <motion.div key={i} variants={fadeInUp} className="text-center">
+                <p className="text-3xl md:text-4xl font-bold mb-2">{stat.value}</p>
+                <p className="text-sm opacity-90">{stat.label}</p>
+              </motion.div>
+            ))}
+          </Reveal>
+        </div>
+      </section>
+
+      <section id="servicios" className="section bg-white">
+        <div className="container">
+          <Reveal variants={stagger} className="mb-12" retrigger amount={0.25}>
+            <motion.div variants={fadeInUp} className="max-w-2xl">
+              <h2 className="h2 mb-4">Nuestros servicios</h2>
+              <p className="text-lg text-muted-foreground">
+                Cada tratamiento adaptado a tus necesidades con tecnología de punta y profesionales certificados.
+              </p>
+            </motion.div>
+          </Reveal>
+
+          <ServicesCarousel items={services} className="mt-8" auto />
+        </div>
+      </section>
+
+      <section className="section bg-white">
+        <div className="container">
+          <Reveal variants={stagger} className="mb-12 text-center" retrigger amount={0.25}>
+            <motion.div variants={fadeInUp} className="flex items-center justify-center gap-3 mb-4">
+              <div className="h-1 w-12 bg-primary"></div>
+              <p className="text-sm uppercase tracking-widest font-semibold text-primary">Conoce a nuestro equipo</p>
+              <div className="h-1 w-12 bg-primary"></div>
+            </motion.div>
+            <motion.h2 variants={fadeInUp} className="h2 mb-4">Profesionales certificados</motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Dentistas especializados con experiencia comprobada para ofrecerte la mejor atención.
+            </motion.p>
+          </Reveal>
+
+          <Reveal variants={stagger} className="grid md:grid-cols-3 gap-8" retrigger amount={0.25}>
+            {equipo.map((member) => (
+              <motion.div key={member.name} variants={fadeInUp}>
+                <Card className="overflow-hidden border-border h-full hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
+                  <div className="relative h-80 overflow-hidden bg-muted">
+                    <Image
+                      src={member.imageUrl || "/placeholder.svg"}
+                      alt={member.name}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                      <p className="text-white text-sm leading-relaxed">{member.bio}</p>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold mb-1">{member.name}</h3>
+                    <p className="text-primary text-sm font-semibold mb-2">{member.speciality}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="h-2 w-2 rounded-full bg-primary"></span>
+                      <span>{member.experience} experiencia</span>
                     </div>
                   </div>
                 </Card>
               </motion.div>
             ))}
           </Reveal>
+
+          <motion.div variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: false, amount: 0.3 }} className="text-center mt-12">
+            <p className="text-muted-foreground mb-6">
+              Todos nuestros profesionales están certificados y se actualizan constantemente en las nuevas técnicas dentales.
+            </p>
+            <Button asChild className="btn-primary">
+              <Link href="/disponibilidad">
+                Conocer disponibilidad de nuestro equipo
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </motion.div>
         </div>
       </section>
 
-      {/* PRECIOS */}
-      <section id="precios" className="section bg-slate-50 border-y">
+      <section id="por-que-nosotros" className="section bg-white">
         <div className="container">
-          <h2 className="h2 mb-8">Precios</h2>
-          <Reveal variants={stagger} className="grid md:grid-cols-3 gap-6" retrigger amount={0.25}>
-            {precios.map((p) => (
-              <motion.div key={p.name} variants={fadeInUp}>
-                <Card className="flex flex-col">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold">{p.name}</h3>
-                    <p className="mt-1 text-3xl font-bold">{p.price}</p>
-                    <ul className="mt-3 text-slate-600 space-y-1 list-disc ml-5">
-                      {p.items.map(i => <li key={i}>{i}</li>)}
-                    </ul>
+          <Reveal variants={stagger} className="mb-12 text-center" retrigger amount={0.25}>
+            <motion.div variants={fadeInUp} className="flex items-center justify-center gap-3 mb-4">
+              <div className="h-1 w-12 bg-primary"></div>
+              <p className="text-sm uppercase tracking-widest font-semibold text-primary">Diferencia real</p>
+              <div className="h-1 w-12 bg-primary"></div>
+            </motion.div>
+            <motion.h2 variants={fadeInUp} className="h2 mb-4">Por qué elegirnos</motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Cuatro razones por las que 5,000+ pacientes confían en nosotros para su salud dental.
+            </motion.p>
+          </Reveal>
+
+          <Reveal variants={stagger} className="grid md:grid-cols-2 gap-8" retrigger amount={0.25}>
+            {whyUs.map((item) => (
+              <motion.div key={item.title} variants={fadeInUp}>
+                <Card className="p-8 h-full border-border hover:shadow-xl hover:-translate-y-1 transition-all group cursor-default">
+                  <div className="text-5xl mb-4">{item.icon}</div>
+                  <h3 className="text-2xl font-bold mb-3">{item.title}</h3>
+                  <p className="text-muted-foreground text-lg leading-relaxed">{item.desc}</p>
+                </Card>
+              </motion.div>
+            ))}
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="section bg-gradient-to-br from-primary/5 to-accent/5">
+        <div className="container">
+          <Reveal variants={stagger} className="mb-12 text-center" retrigger amount={0.25}>
+            <motion.h2 variants={fadeInUp} className="h2 mb-4">Respaldos y certificaciones</motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Profesionales certificados internacionalmente con estándares de calidad garantizados.
+            </motion.p>
+          </Reveal>
+
+          <Reveal variants={stagger} className="grid grid-cols-2 md:grid-cols-4 gap-6" retrigger amount={0.25}>
+            {certificaciones.map((cert) => (
+              <motion.div key={cert.name} variants={fadeInUp}>
+                <div className="h-full flex flex-col items-center justify-center p-6 rounded-xl bg-white border border-border hover:shadow-lg hover:border-primary/30 transition-all text-center">
+                  <div className="text-4xl font-bold text-primary mb-2">{cert.name}</div>
+                  <p className="text-sm text-muted-foreground">{cert.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </Reveal>
+
+          <motion.p variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: false, amount: 0.3 }} className="text-center text-sm text-muted-foreground mt-12">
+            Todos nuestros procedimientos cumplen con los estándares sanitarios internacionales más exigentes.
+          </motion.p>
+        </div>
+      </section>
+
+      <section id="tratamientos" className="section bg-white">
+        <div className="container">
+          <Reveal variants={stagger} className="mb-12 text-center" retrigger amount={0.25}>
+            <motion.div variants={fadeInUp} className="flex items-center justify-center gap-3 mb-4">
+              <div className="h-1 w-12 bg-primary"></div>
+              <p className="text-sm uppercase tracking-widest font-semibold text-primary">Especialidades</p>
+              <div className="h-1 w-12 bg-primary"></div>
+            </motion.div>
+            <motion.h2 variants={fadeInUp} className="h2 mb-4">Tratamientos especializados</motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Soluciones a medida para cada necesidad dental con resultados que duran.
+            </motion.p>
+          </Reveal>
+
+          <Reveal variants={stagger} className="grid md:grid-cols-2 gap-6" retrigger amount={0.25}>
+            {tratamientos.map((t) => (
+              <motion.div key={t.title} variants={fadeInUp}>
+                <Card className="p-8 h-full border-border hover:shadow-xl hover:-translate-y-2 transition-all group">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="text-5xl">{t.icon}</div>
+                    <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">{t.tiempo}</span>
                   </div>
-                  <div className="mt-6">
-                    <Link href="/disponibilidad"><Button className="w-full">Agendar</Button></Link>
+                  <h3 className="text-2xl font-bold mb-3">{t.title}</h3>
+                  <p className="text-muted-foreground mb-6">{t.desc}</p>
+                  <div className="pt-4 border-t border-border">
+                    <p className="text-sm font-semibold text-primary">✓ {t.resultados}</p>
                   </div>
                 </Card>
               </motion.div>
             ))}
           </Reveal>
-          <p className="text-xs text-slate-500 mt-3">* Sujeto a valoración.</p>
+
+          <motion.div variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: false, amount: 0.3 }} className="text-center mt-12">
+            <Button asChild className="btn-primary">
+              <Link href="/disponibilidad">
+                Consultar disponibilidad
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </motion.div>
         </div>
       </section>
-{/* UBICACIÓN + TARJETA FLOTANTE + FOOTER CLÍNICO */}
-<section id="ubicacion" className="relative bg-slate-50 py-0">
-  <div className="container max-w-6xl">
-{/* MAPA recortado limpio sin overlays */}
-<div className="relative -mt-4">
-  <div className="rounded-3xl overflow-hidden border shadow relative">
-    {/* Pin animado */}
-{/* Pin animado — estable + glow violeta */}
-<div className="absolute top-1/2 left-[20%] z-30 -translate-y-full">
-  <div className="relative flex items-center justify-center">
-    <motion.div
-      initial={{ opacity: 1 }}
-      animate={{ scale: [1, 1.08, 1], y: [0, -3, 0] }}
-      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-      className="relative flex items-center justify-center"
-      style={{ transformOrigin: "center" }}
-    >
-      {/* Halo externo */}
-      <motion.span
-        className="absolute h-14 w-14 rounded-full bg-violet-500/25"
-        animate={{ scale: [1, 1.5, 1], opacity: [0.4, 0.2, 0.4] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: "easeOut" }}
-      />
 
-      {/* Pin principal con glow */}
-      <div className="relative h-12 w-12 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-500 shadow-[0_0_15px_rgba(139,92,246,0.6)] flex items-center justify-center">
-        <MapPin className="h-6 w-6 text-white drop-shadow-md" />
-        {/* Brillo y sombra */}
-        <div className="absolute inset-0 rounded-full bg-white/10 blur-md" />
-        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-[6px] bg-violet-400/40 rounded-full blur-sm" />
-      </div>
-    </motion.div>
-  </div>
-</div>
+      <section id="faq" className="section bg-gradient-to-br from-background to-accent/5">
+        <div className="container">
+          <Reveal variants={stagger} className="mb-12 text-center" retrigger amount={0.25}>
+            <motion.h2 variants={fadeInUp} className="h2 mb-4">Preguntas frecuentes</motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Resolvemos tus dudas. No hay preguntas tontas, solo decisiones informadas.
+            </motion.p>
+          </Reveal>
 
+          <div className="max-w-3xl mx-auto space-y-4">
+            <Reveal variants={stagger} retrigger amount={0.25}>
+              {preguntas.map((item) => (
+                <motion.div key={item.q} variants={fadeInUp}>
+                  <button
+                    onClick={() => setOpenFaq(openFaq === item.q ? null : item.q)}
+                    className="w-full text-left p-6 rounded-lg border border-border bg-white hover:bg-muted/50 transition-all hover:shadow-md group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-foreground">{item.q}</h3>
+                      <motion.div animate={{ rotate: openFaq === item.q ? 180 : 0 }} transition={{ duration: 0.3 }}>
+                        <ArrowRight className="h-5 w-5 text-primary rotate-90" />
+                      </motion.div>
+                    </div>
+                    <motion.div initial={false} animate={{ height: openFaq === item.q ? "auto" : 0 }} transition={{ duration: 0.3 }} className="overflow-hidden">
+                      <p className="text-muted-foreground mt-4">{item.a}</p>
+                    </motion.div>
+                  </button>
+                </motion.div>
+              ))}
+            </Reveal>
+          </div>
 
-    {/* IFRAME limpio sin botones */}
-    <div className="relative w-full h-[400px] overflow-hidden">
-      <iframe
-        className="h-full w-full pointer-events-none select-none"
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-        src={`https://maps.google.com/maps?ll=${MAP.lat},${MAP.lng}&z=${MAP.zoom}&t=m&hl=es&output=embed&disableDefaultUI=1&zoomControl=0&mapTypeControl=0&streetViewControl=0&fullscreenControl=0`}
-        title="Mapa - Juventud 2000, Mexicali"
-      />
-    </div>
-  </div>
+          <motion.p variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: false, amount: 0.3 }} className="text-center text-sm text-muted-foreground mt-12">
+            ¿Más preguntas? Contáctanos por WhatsApp o agendar una consulta inicial.
+          </motion.p>
+        </div>
+      </section>
 
-  {/* Botón Ver en Maps */}
-  <div className="mt-3 flex justify-start">
-    <a
-      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(MAP.query)}`}
-      target="_blank"
-      rel="noreferrer"
-      className="inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium bg-white hover:bg-slate-50 transition shadow-sm"
-    >
-      Ver en Google Maps
-    </a>
-  </div>
+      <section className="section bg-white">
+        <div className="container">
+          <Reveal variants={stagger} className="mb-12" retrigger amount={0.25}>
+            <motion.div variants={fadeInUp} className="max-w-2xl">
+              <h2 className="h2 mb-4">¿Por qué elegirnos?</h2>
+              <p className="text-lg text-muted-foreground">
+                Cada tratamiento adaptado a tus necesidades con tecnología de punta y profesionales certificados.
+              </p>
+            </motion.div>
+          </Reveal>
 
+          <Reveal variants={stagger} className="grid md:grid-cols-3 gap-8" retrigger amount={0.25}>
+            {beneficios.map((b) => (
+              <motion.div key={b.title} variants={fadeInUp}>
+                <Card className="h-full p-8 hover:shadow-xl hover:-translate-y-1 cursor-default border-border">
+                  <div className="h-14 w-14 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-4">
+                    {b.icon}
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">{b.title}</h3>
+                  <p className="text-muted-foreground">{b.desc}</p>
+                </Card>
+              </motion.div>
+            ))}
+          </Reveal>
+        </div>
+      </section>
 
-      {/* TARJETA FLOTANTE */}
-      <motion.div
-        variants={fadeInUp}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: false, amount: 0.3 }}
-        className="md:absolute md:-top-16 lg:-top-10 md:right-6 z-10"
-      >
-        <Card className="w-full md:w-[520px] p-6 md:p-8 shadow-2xl border-violet-200 bg-white/95 backdrop-blur">
-          <h3 className="text-3xl font-extrabold text-violet-700">Contáctanos</h3>
-          <p className="text-xs uppercase tracking-wider text-violet-700/80 mb-5">
-            Para consultas y asesorías
-          </p>
+      <section className="section bg-white">
+        <div className="container">
+          <Reveal variants={stagger} className="mb-12 text-center" retrigger amount={0.25}>
+            <motion.h2 variants={fadeInUp} className="h2 mb-4">Lo que dicen nuestros pacientes</motion.h2>
+            <motion.p variants={fadeInUp} className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Historias reales de sonrisas transformadas
+            </motion.p>
+          </Reveal>
 
-          <form className="space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium">Nombre</label>
-                <Input placeholder="Tu nombre" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Teléfono</label>
-                <Input placeholder="(686) 123 4567" />
-              </div>
-            </div>
+          <Reveal variants={stagger} className="grid md:grid-cols-3 gap-8" retrigger amount={0.25}>
+            {testimonios.map((t) => (
+              <motion.div key={t.name} variants={fadeInUp}>
+                <Card className="p-8 h-full border-border">
+                  <div className="flex gap-1 mb-4">
+                    {[...Array(t.rating)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 fill-primary text-primary" />
+                    ))}
+                  </div>
+                  <p className="text-muted-foreground mb-6 italic">"{t.text}"</p>
+                  <div>
+                    <p className="font-bold">{t.name}</p>
+                    <p className="text-sm text-muted-foreground">{t.role}</p>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </Reveal>
+        </div>
+      </section>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium">Correo</label>
-                <Input type="email" placeholder="tucorreo@ejemplo.com" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Asunto</label>
-                <Input placeholder="Cita / Información" />
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">Mensaje</label>
-              <Textarea
-                rows={4}
-                placeholder="Cuéntanos en qué te ayudamos"
-                className="resize-none"
+      <section id="ubicacion" className="relative bg-white py-0">
+        <div className="container max-w-6xl">
+          <div className="rounded-3xl overflow-hidden border border-border shadow-2xl relative min-h-[500px]">
+            <div className="relative w-full h-[500px]">
+              <iframe
+                className="h-full w-full"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                src={`https://maps.google.com/maps?ll=${MAP.lat},${MAP.lng}&z=${MAP.zoom}&t=m&hl=es&output=embed&disableDefaultUI=1`}
+                title="Ubicación"
               />
             </div>
 
-            <Button
-              type="button"
-              className="w-full py-3 text-lg bg-violet-700 hover:bg-violet-800 transition-all"
-            >
-              Enviar mensaje
-            </Button>
-          </form>
-        </Card>
-      </motion.div>
-    </div>
-
-    {/* BANDA INFERIOR (FOOTER CLÍNICO) */}
-    <div className="mt-10 rounded-3xl bg-cyan-400 py-10 md:py-12 shadow-inner">
-      <div className="px-6 md:px-10">
-        <Reveal variants={stagger} className="grid md:grid-cols-3 gap-10 text-slate-900" retrigger amount={0.25}>
-          {/* Logo / texto corto */}
-          <motion.div variants={fadeInUp} className="space-y-3">
-            <div className="inline-flex items-center gap-3 bg-white rounded-xl px-3 py-2 shadow-sm">
-              <div className="h-8 w-8 rounded-full bg-sky-500 grid place-content-center text-white font-bold">N</div>
-              <span className="font-semibold">Sonrisa Plus</span>
+            {/* Animated pin */}
+            <div className="absolute top-1/2 left-1/3 z-20 -translate-y-full -translate-x-1/2">
+              <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }} className="relative">
+                <div className="absolute inset-0 bg-primary/30 rounded-full blur-md animate-pulse"></div>
+                <div className="relative h-12 w-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg">
+                  <MapPin className="h-6 w-6" />
+                </div>
+              </motion.div>
             </div>
-            <p className="text-sm leading-relaxed">
-              Con la tecnología dental más avanzada para ayudarte a lucir tu mejor sonrisa.
-            </p>
+          </div>
+
+          <div className="mt-6 flex justify-start">
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(MAP.query)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold border border-border rounded-lg hover:bg-muted transition-all"
+            >
+              Ver en Google Maps
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
+
+          {/* Contact card */}
+          <motion.div variants={fadeInUp} initial="hidden" whileInView="show" viewport={{ once: false, amount: 0.3 }} className="md:absolute md:-top-24 md:right-6 z-10 mt-8 md:mt-0">
+            <Card className="w-full md:w-[480px] p-8 shadow-2xl border-border bg-white">
+              <h3 className="text-3xl font-bold mb-2">Contáctanos</h3>
+              <p className="text-sm text-muted-foreground uppercase tracking-widest mb-6">Estamos listos para ayudarte</p>
+
+              <form className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-semibold mb-2 block">Nombre</label>
+                    <Input placeholder="Tu nombre" className="border-border" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold mb-2 block">Teléfono</label>
+                    <Input placeholder="(686) 123 4567" className="border-border" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold mb-2 block">Correo</label>
+                  <Input type="email" placeholder="tu@email.com" className="border-border" />
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold mb-2 block">Mensaje</label>
+                  <Textarea rows={4} placeholder="Cuéntanos en qué te ayudamos..." className="border-border resize-none" />
+                </div>
+
+                <Button className="w-full btn-primary py-3 text-base">Enviar mensaje</Button>
+              </form>
+            </Card>
           </motion.div>
+        </div>
 
-          {/* Especialidades */}
-          <motion.div variants={fadeInUp}>
-            <h4 className="font-extrabold tracking-wide uppercase mb-3">Especialidades</h4>
-            <ul className="space-y-1 text-sm">
-              <li>Estética dental</li>
-              <li>Ortodoncia</li>
-              <li>Implantes dentales</li>
-              <li>Odontopediatría</li>
-              <li>Endodoncia</li>
-            </ul>
-          </motion.div>
+        {/* Info band */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 py-12 border-t border-border">
+          <Reveal variants={stagger} className="col-span-full grid grid-cols-1 md:grid-cols-3 gap-8" retrigger amount={0.25}>
+            <motion.div variants={fadeInUp} className="space-y-2">
+              <p className="text-sm uppercase tracking-widest font-bold text-primary">Teléfono</p>
+              <a href="tel:+526861234567" className="text-2xl font-bold hover:text-primary transition">
+                (686) 123 4567
+              </a>
+              <p className="text-sm text-muted-foreground">Disponible 24/7 por WhatsApp</p>
+            </motion.div>
 
-          {/* Contacto */}
-          <motion.div variants={fadeInUp}>
-            <h4 className="font-extrabold tracking-wide uppercase mb-3">Contacto</h4>
-            <ul className="space-y-2 text-sm">
-              <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" /> Av. Reforma 123, Mexicali, BC
-              </li>
-              <li className="flex items-center gap-2">
-                <PhoneCall className="h-4 w-4" /> (686) 123 4567
-              </li>
-              <li className="flex items-center gap-2">
-                <MessageCircle className="h-4 w-4" /> WhatsApp disponible
-              </li>
-              <li className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4" /> Higiene certificada
-              </li>
-            </ul>
-          </motion.div>
-        </Reveal>
-      </div>
-    </div>
-  </div>
-</section>
+            <motion.div variants={fadeInUp} className="space-y-2">
+              <p className="text-sm uppercase tracking-widest font-bold text-primary">Horario</p>
+              <p className="text-2xl font-bold">8:00 AM - 8:00 PM</p>
+              <p className="text-sm text-muted-foreground">Lunes a sábado</p>
+            </motion.div>
 
-
-
-      {/* CTA final */}
-      <section className="section">
-        <div className="container text-center">
-          <Reveal variants={stagger} retrigger amount={0.25}>
-            <motion.h2 variants={fadeInUp} className="h2">Listo para sonreír sin pendientes</motion.h2>
-            <motion.p variants={fadeInUp} className="lead mt-2">Da clic para ver disponibilidad y agendar en minutos.</motion.p>
-            <motion.div variants={fadeInUp} className="mt-5">
-              <Link href="/disponibilidad"><Button className="text-base"><Calendar className="mr-2 h-5 w-5"/>Consulta disponibilidad</Button></Link>
+            <motion.div variants={fadeInUp} className="space-y-2">
+              <p className="text-sm uppercase tracking-widest font-bold text-primary">Ubicación</p>
+              <p className="text-sm font-semibold">Av. Reforma 123, Mexicali, BC</p>
+              <p className="text-sm text-muted-foreground">Centro Recreativo Juventud 2000</p>
             </motion.div>
           </Reveal>
         </div>
       </section>
 
+      <section className="section bg-gradient-to-br from-primary to-primary/90 text-white text-center">
+        <Reveal variants={stagger} retrigger amount={0.25}>
+          <motion.h2 variants={fadeInUp} className="h2 text-white mb-4">Tu sonrisa perfecta está a un clic</motion.h2>
+          <motion.p variants={fadeInUp} className="lead text-white/90 max-w-2xl mx-auto mb-8">
+            Consulta inicial sin costo. Conoce nuestro equipo y equipamiento de última generación.
+          </motion.p>
+          <motion.div variants={fadeInUp}>
+            <Button asChild className="bg-white text-primary hover:bg-white/90 text-base px-8 py-4 font-bold">
+              <Link href="/disponibilidad">
+                Agendar ahora
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </motion.div>
+        </Reveal>
+      </section>
+
       <Footer />
 
-      {/* Botón flotante WhatsApp */}
+      {/* WhatsApp floating */}
       <a
-        href="https://wa.me/526861234567?text=Hola%20quiero%20informes"
-        target="_blank" rel="noreferrer"
-        className="fixed right-4 bottom-4 md:right-6 md:bottom-6 rounded-full shadow-lg p-4 bg-green-500 text-white hover:scale-[1.03] transition"
+        href="https://wa.me/526861234567?text=Hola%20quisiera%20agendar%20una%20cita"
+        target="_blank"
+        rel="noreferrer"
+        className="fixed right-6 bottom-6 z-50 h-16 w-16 rounded-full bg-green-500 text-white shadow-xl hover:shadow-2xl hover:scale-110 transition-all flex items-center justify-center font-bold text-2xl"
         aria-label="WhatsApp"
+        title="Contáctanos por WhatsApp"
       >
-        WA
+        💬
       </a>
     </>
-  );
+  )
 }

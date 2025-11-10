@@ -1,152 +1,108 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react"
+import Image from "next/image"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
-type Item = {
-  title: string;
-  desc?: string;
-  imageUrl?: string;
-  href?: string;
-};
+interface ServiceItem {
+  title: string
+  desc: string
+  imageUrl: string
+}
 
-type Props = {
-  items: Item[];
-  className?: string;
-  auto?: boolean;          // autoplay
-  interval?: number;       // ms entre pasos
-};
+interface ServicesCarouselProps {
+  items: ServiceItem[]
+  className?: string
+  auto?: boolean
+  // puedes pasar "center", "top", "bottom" si quieres ajustar foco
+  objectPosition?: "center" | "top" | "bottom" | "left" | "right"
+}
 
 export default function ServicesCarousel({
   items,
-  className,
-  auto = true,
-  interval = 3000,
-}: Props) {
-  const viewportRef = React.useRef<HTMLDivElement | null>(null);
-  const cardRef = React.useRef<HTMLDivElement | null>(null);
-  const gapPx = 16; // debe coincidir con el gap de la fila
+  className = "",
+  auto = false,
+  objectPosition = "center",
+}: ServicesCarouselProps) {
+  const [current, setCurrent] = useState(0)
 
-  // extendemos para “loop”
-  const clones = items.slice(0, Math.min(items.length, 4));
-  const data = React.useMemo(() => [...items, ...clones], [items, clones]);
+  useEffect(() => {
+    if (!auto) return
+    const interval = setInterval(() => setCurrent((p) => (p + 1) % items.length), 5000)
+    return () => clearInterval(interval)
+  }, [auto, items.length])
 
-  const getStep = React.useCallback(() => {
-    const card = cardRef.current;
-    if (!card) return 0;
-    const w = card.getBoundingClientRect().width;
-    return Math.round(w + gapPx);
-  }, []);
-
-  const scrollByOne = React.useCallback(
-    (dir: 1 | -1) => {
-      const vp = viewportRef.current;
-      if (!vp) return;
-      const step = getStep();
-      if (!step) return;
-
-      const maxScroll = vp.scrollWidth - vp.clientWidth;
-      const target = vp.scrollLeft + dir * step;
-
-      // si estamos por llegar al final, desplazamos y luego saltamos al inicio “sin animación”
-      if (target >= maxScroll - step / 2) {
-        vp.scrollTo({ left: maxScroll, behavior: "smooth" });
-        // al terminar la animación, saltamos
-        setTimeout(() => {
-          vp.scrollTo({ left: 0, behavior: "instant" as ScrollBehavior });
-        }, 350);
-      } else if (target <= 0 && dir === -1) {
-        // si vamos hacia atrás en el inicio, saltamos al “final”
-        vp.scrollTo({ left: maxScroll, behavior: "instant" as ScrollBehavior });
-        requestAnimationFrame(() => {
-          vp.scrollBy({ left: -step, behavior: "smooth" });
-        });
-      } else {
-        vp.scrollBy({ left: dir * step, behavior: "smooth" });
-      }
-    },
-    [getStep]
-  );
-
-  // autoplay
-  React.useEffect(() => {
-    if (!auto) return;
-    const id = setInterval(() => scrollByOne(1), interval);
-    return () => clearInterval(id);
-  }, [auto, interval, scrollByOne]);
+  const next = () => setCurrent((p) => (p + 1) % items.length)
+  const prev = () => setCurrent((p) => (p - 1 + items.length) % items.length)
 
   return (
-    <div className={cn("relative", className)}>
-      {/* máscara y padding para no cortar bordes */}
-      <div
-        className="relative overflow-x-auto hide-scrollbar px-2"
-        ref={viewportRef}
-        style={{
-          maskImage:
-            "linear-gradient(to right, transparent 0, black 24px, black calc(100% - 24px), transparent 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to right, transparent 0, black 24px, black calc(100% - 24px), transparent 100%)",
-        }}
-      >
-        <div
-          className="grid auto-cols-[85%] xs:auto-cols-[75%] sm:auto-cols-[58%] md:auto-cols-[42%] lg:auto-cols-[32%] grid-flow-col gap-4 py-1 snap-x snap-mandatory"
-          style={{ scrollSnapType: "x mandatory" }}
-        >
-          {data.map((it, i) => (
-            <div
-              key={`${it.title}-${i}`}
-              className="snap-start"
-              ref={i === 0 ? cardRef : undefined}
-            >
-              <article className="h-full rounded-2xl border bg-white shadow-sm overflow-hidden hover:shadow-md transition">
-                <div className="relative h-40 w-full bg-slate-100">
-                  {it.imageUrl ? (
-                    <Image
-                      src={it.imageUrl}
-                      alt={it.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 85vw, (max-width: 768px) 58vw, (max-width: 1024px) 42vw, 32vw"
-                      priority={i < 2}
-                    />
-                  ) : (
-                    <div className="absolute inset-0 grid place-content-center text-slate-400">
-                      (sin imagen)
-                    </div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <h3 className="text-base font-semibold text-slate-900">
-                    {it.title}
+    <div className={`space-y-4 ${className}`}>
+      {/* Contenedor fijo con ratio uniforme para TODAS las fotos */}
+      <div className="relative overflow-hidden rounded-2xl bg-muted">
+        {/* altura base + ratio; en desktop se hace más panorámico */}
+        <div className="aspect-[16/9] md:aspect-[21/9] h-[360px] md:h-[520px] w-full">
+          <div
+            className="flex h-full w-full transition-transform duration-500 ease-out"
+            style={{ transform: `translateX(-${current * 100}%)` }}
+          >
+            {items.map((item, idx) => (
+              <div
+                key={`${item.title}-${idx}`}
+                className="min-w-full relative h-full"
+              >
+                <Image
+                  src={item.imageUrl || "/placeholder.svg"}
+                  alt={item.title}
+                  fill
+                  // recorte limpio y uniforme
+                  className="object-cover"
+                  style={{ objectPosition }}
+                  sizes="100vw"
+                  priority={idx === 0}
+                />
+
+                {/* capa para texto */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent flex flex-col justify-end p-6 md:p-8">
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 drop-shadow">
+                    {item.title}
                   </h3>
-                  {it.desc && (
-                    <p className="text-sm text-slate-600 mt-1">{it.desc}</p>
-                  )}
+                  <p className="text-white/90">{item.desc}</p>
                 </div>
-              </article>
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Controles */}
+        <button
+          onClick={prev}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-black/25 hover:bg-black/40 text-white p-2 rounded-full transition"
+          aria-label="Previous"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </button>
+        <button
+          onClick={next}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-black/25 hover:bg-black/40 text-white p-2 rounded-full transition"
+          aria-label="Next"
+        >
+          <ChevronRight className="h-6 w-6" />
+        </button>
       </div>
 
-      {/* Controles 1 a 1 */}
-      <button
-        type="button"
-        aria-label="Anterior"
-        onClick={() => scrollByOne(-1)}
-        className="absolute -left-1 top-1/2 -translate-y-1/2 grid h-9 w-9 place-items-center rounded-full bg-white/90 border shadow hover:bg-white active:scale-[0.98]"
-      >
-        ‹
-      </button>
-      <button
-        type="button"
-        aria-label="Siguiente"
-        onClick={() => scrollByOne(1)}
-        className="absolute -right-1 top-1/2 -translate-y-1/2 grid h-9 w-9 place-items-center rounded-full bg-white/90 border shadow hover:bg-white active:scale-[0.98]"
-      >
-        ›
-      </button>
+      {/* Indicadores */}
+      <div className="flex justify-center gap-2">
+        {items.map((_, idx) => (
+          <button
+            key={`dot-${idx}`}
+            onClick={() => setCurrent(idx)}
+            className={`h-2 rounded-full transition-all ${
+              idx === current ? "bg-primary w-8" : "bg-border w-2"
+            }`}
+            aria-label={`Go to slide ${idx + 1}`}
+          />
+        ))}
+      </div>
     </div>
-  );
+  )
 }

@@ -2,8 +2,6 @@
 import { Professional, TimeSlot } from "@/features/availability/types";
 import { useMemo, useRef } from "react";
 
-/* ---------- Utils ---------- */
-
 type Cell = { dateISO: string; label: string; status: "available" | "busy" | "off" };
 
 const dayFmtFull = (d: Date) =>
@@ -22,7 +20,6 @@ const addDays = (d: Date, n: number) => {
   return x;
 };
 
-/** Construye filas por HORA (HH:00) dentro de [minHour, maxHour] inclusive. */
 function buildHourRows(minHour: number, maxHour: number, baseDate = new Date()) {
   const base = startOfDay(baseDate);
   const out: { label: string; date: Date }[] = [];
@@ -34,7 +31,6 @@ function buildHourRows(minHour: number, maxHour: number, baseDate = new Date()) 
   return out;
 }
 
-/** Parse de `hoursLabel` (ej: "Lun–Vie 9:00–18:00" o "Lun–Sáb 10–20"). */
 function parseHoursLabel(label?: string): { minH: number; maxH: number } | null {
   if (!label) return null;
   const m = label.match(
@@ -56,25 +52,21 @@ function parseHoursLabel(label?: string): { minH: number; maxH: number } | null 
   return { minH: Math.min(h1, h2), maxH: Math.max(h1, h2) };
 }
 
-/** Clave local yyyy-mm-dd|HH para empatar EXACTO día y hora. */
 const keyDayHour = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
     d.getDate()
   ).padStart(2, "0")}|${String(d.getHours()).padStart(2, "0")}`;
 
-/** Indexa SOLO los busy por fecha-hora local (HH:00). */
 function buildBusyIndex(slots: TimeSlot[]) {
   const set = new Set<string>();
   for (const s of slots) {
-    if (s.status !== "busy") continue; // ignoramos 'available'
-    const ds = new Date(s.start); // respeta el offset del ISO
-    ds.setMinutes(0, 0, 0);       // UI es por HH:00
+    if (s.status !== "busy") continue;
+    const ds = new Date(s.start);
+    ds.setMinutes(0, 0, 0);
     set.add(keyDayHour(ds));
   }
   return set;
 }
-
-/* ---------- Tabla única responsiva (móvil = igual que desktop) ---------- */
 
 export default function WeekScheduleTable({
   pro,
@@ -87,20 +79,16 @@ export default function WeekScheduleTable({
     const today = new Date();
     const workingDays = new Set(pro.workingDays ?? [1, 2, 3, 4, 5]);
 
-    // Horario laboral desde hoursLabel; fallback 8–20
     const parsed = parseHoursLabel(pro.hoursLabel);
     const minH = parsed?.minH ?? 8;
     const maxH = parsed?.maxH ?? 20;
 
-    // Horas del horario (no recortamos por slots)
     const hourRows = buildHourRows(minH, maxH, today);
     const rowLabels = hourRows.map((h) => h.label);
     const days = Array.from({ length: 7 }, (_, i) => addDays(startOfDay(today), i));
 
-    // Busy exactos por día+hora
     const busyIdx = buildBusyIndex(pro.slots);
 
-    // Día laboral => disponible salvo que exista busy en esa fecha-hora
     const grid: Cell[][] = hourRows.map((hRow) =>
       days.map((d) => {
         const cellDate = new Date(d);
@@ -110,10 +98,8 @@ export default function WeekScheduleTable({
         if (!workingDays.has(d.getDay())) {
           return { dateISO, label: hourLabel(cellDate), status: "off" };
         }
-
         const k = keyDayHour(cellDate);
         if (busyIdx.has(k)) return { dateISO, label: hourLabel(cellDate), status: "busy" };
-
         return { dateISO, label: hourLabel(cellDate), status: "available" };
       })
     );
@@ -126,7 +112,7 @@ export default function WeekScheduleTable({
 
   return (
     <div className="relative">
-      {/* Botones de scroll (opcionales) sólo visibles en pantallas pequeñas */}
+      {/* Botones de scroll X en móvil */}
       <div className="mb-2 flex gap-2 md:hidden justify-end">
         <button
           onClick={() => scrollBy(-280)}
@@ -145,75 +131,81 @@ export default function WeekScheduleTable({
       </div>
 
       <div className="border rounded-2xl overflow-hidden shadow-sm">
+        {/* ÚNICO scroller (XY) y altura máx para el diálogo */}
         <div
           ref={scrollerRef}
-          className="overflow-x-auto"
+          className="overflow-auto max-h-[62vh]"
           style={{ WebkitOverflowScrolling: "touch" }}
         >
-          {/* max-h + overflow-y para que cabeza/columna queden sticky también en móvil */}
-          <div className="max-h-[70vh] overflow-y-auto">
-            <table className="w-full min-w-[860px] md:min-w-[1024px] border-separate border-spacing-0">
-              <thead className="sticky top-0 z-20 bg-white">
-                <tr>
-                  <th className="sticky left-0 z-30 bg-white text-left p-2 text-[11px] font-semibold text-slate-500 border-b w-[86px]">
-                    Hora
+          <table className="w-full min-w-[860px] md:min-w-[1024px] table-fixed border-separate border-spacing-0">
+            <thead className="bg-white">
+              <tr>
+                {/* Esquina/Hora: mismo alto/nowrap para que no “salte” */}
+                <th
+                  className="sticky left-0 top-0 z-40 bg-white text-left px-3 py-2 text-[11px] font-semibold text-slate-500 border-b w-[110px] whitespace-nowrap"
+                >
+                  Hora
+                </th>
+                {days.map((d, i) => (
+                  <th
+                    key={i}
+                    className="sticky top-0 z-30 bg-white px-3 py-2 text-[11px] font-semibold text-slate-500 border-b min-w-[130px]"
+                  >
+                    {dayFmtFull(d)}
                   </th>
-                  {days.map((d, i) => (
-                    <th
-                      key={i}
-                      className="p-2 text-[11px] font-semibold text-slate-500 border-b min-w-[130px]"
-                    >
-                      {dayFmtFull(d)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {grid.map((row, r) => (
-                  <tr key={r}>
-                    <td className="sticky left-0 z-10 bg-white px-2 py-1 text-[13px] font-medium text-slate-700 border-b">
-                      {rowLabels[r]}
-                    </td>
-                    {row.map((cell, c) => {
-                      const base =
-                        "w-full px-2 py-1.5 rounded-lg border text-[13px] font-medium transition text-center";
-                      const off =
-                        "bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed";
-                      const busy =
-                        "bg-rose-50 border-rose-200 text-rose-600 cursor-not-allowed";
-                      const free =
-                        "bg-green-50 border-green-200 text-green-700 hover:bg-green-100 cursor-pointer";
-                      const cls =
-                        cell.status === "off" ? off : cell.status === "busy" ? busy : free;
-
-                      return (
-                        <td key={c} className="p-1 border-b">
-                          <button
-                            disabled={cell.status !== "available"}
-                            onClick={() =>
-                              cell.status === "available" &&
-                              onPick?.({ dateISO: cell.dateISO, label: cell.label })
-                            }
-                            className={`${base} ${cls} w-full`}
-                          >
-                            {cell.status === "off"
-                              ? "—"
-                              : cell.status === "busy"
-                              ? "Ocupado"
-                              : "Disponible"}
-                          </button>
-                        </td>
-                      );
-                    })}
-                  </tr>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </tr>
+            </thead>
+
+            <tbody>
+              {grid.map((row, r) => (
+                <tr key={r}>
+                  {/* Primera col sticky con nowrap (evita que la hora “se salga”) */}
+                  <td className="sticky left-0 z-10 bg-white px-3 py-2 text-[13px] font-medium text-slate-700 border-b whitespace-nowrap">
+                    {rowLabels[r]}
+                  </td>
+
+                  {row.map((cell, c) => {
+                    const base =
+                      "w-full px-2 py-1.5 rounded-lg border text-[13px] font-medium transition text-center";
+                    const off =
+                      "bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed";
+                    const busy =
+                      "bg-rose-50 border-rose-200 text-rose-600 cursor-not-allowed";
+                    const free =
+                      "bg-green-50 border-green-200 text-green-700 hover:bg-green-100 cursor-pointer";
+                    const cls = cell.status === "off" ? off : cell.status === "busy" ? busy : free;
+
+                    return (
+                      <td key={c} className="p-1 border-b align-middle">
+                        <button
+                          disabled={cell.status !== "available"}
+                          onClick={() =>
+                            cell.status === "available" &&
+                            onPick?.({ dateISO: cell.dateISO, label: cell.label })
+                          }
+                          className={`${base} ${cls} w-full`}
+                        >
+                          {cell.status === "off"
+                            ? "—"
+                            : cell.status === "busy"
+                            ? "Ocupado"
+                            : "Disponible"}
+                        </button>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+              <tr>
+                <td colSpan={days.length + 1} className="h-2" />
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {/* Leyenda compacta (se ve en todos los tamaños) */}
+      {/* Leyenda */}
       <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-slate-500">
         <span className="inline-flex items-center gap-1">
           <span className="h-3 w-3 rounded bg-green-100 border border-green-200" /> Disponible
