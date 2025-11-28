@@ -116,12 +116,7 @@ export default function ProfessionalDialog({
                       </h1>
                       <div className="text-[13px] text-slate-600">
                         {pro.role}
-                        {pro.hoursLabel && (
-                          <>
-                            <span className="mx-2 text-slate-300">•</span>
-                            <span>{pro.hoursLabel}</span>
-                          </>
-                        )}
+
                       </div>
                       {pro.phone && (
                         <div className="mt-1 text-[13px] text-slate-500">
