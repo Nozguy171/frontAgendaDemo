@@ -1,222 +1,299 @@
 "use client";
 import { Professional, TimeSlot } from "@/features/availability/types";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 
 type Cell = { dateISO: string; label: string; status: "available" | "busy" | "off" };
 
-const dayFmtFull = (d: Date) =>
+const fmtDay = (d: Date) =>
   d.toLocaleDateString(undefined, { weekday: "short", day: "2-digit", month: "short" });
-const hourLabel = (d: Date) =>
-  d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-const startOfDay = (d: Date) => {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
-};
-const addDays = (d: Date, n: number) => {
-  const x = new Date(d);
-  x.setDate(x.getDate() + n);
-  return x;
-};
+const fmtTime = (d: Date) =>
+  d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
 
-function buildHourRows(minHour: number, maxHour: number, baseDate = new Date()) {
-  const base = startOfDay(baseDate);
-  const out: { label: string; date: Date }[] = [];
-  for (let h = minHour; h <= maxHour; h++) {
+const startOfDay = (d: Date) => new Date(d.setHours(0, 0, 0, 0));
+const addDays = (d: Date, n: number) =>
+  new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+
+// -----------------------------
+// 🔥 Generar bloques de 15 min
+// -----------------------------
+function buildQuarterRows(startH: number, startM: number, endH: number, endM: number, base: Date) {
+  const rows: { label: string; date: Date }[] = [];
+  let h = startH;
+  let m = startM;
+
+  while (h < endH || (h === endH && m <= endM)) {
     const d = new Date(base);
-    d.setHours(h, 0, 0, 0);
-    out.push({ label: hourLabel(d), date: d });
+    d.setHours(h, m, 0, 0);
+    rows.push({ label: fmtTime(d), date: d });
+
+    m += 15;
+    if (m >= 60) {
+      m = 0;
+      h++;
+    }
   }
-  return out;
+
+  return rows;
 }
 
-function parseHoursLabel(label?: string): { minH: number; maxH: number } | null {
-  if (!label) return null;
-  const m = label.match(
-    /(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?\s*[–-]\s*(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?/i
-  );
-  if (!m) return null;
-
-  const to24 = (hStr: string, _m?: string, ampm?: string) => {
-    let h = parseInt(hStr, 10);
-    if (!ampm) return h;
-    const A = ampm.toUpperCase();
-    if (A === "AM") return h % 12;
-    return (h % 12) + 12;
-  };
-
-  const h1 = to24(m[1], m[2], m[3]);
-  const h2 = to24(m[4], m[5], m[6]);
-  if (isNaN(h1) || isNaN(h2)) return null;
-  return { minH: Math.min(h1, h2), maxH: Math.max(h1, h2) };
+function parseHM(str: string) {
+  const [h, m] = str.split(":").map(Number);
+  return { h, m };
 }
 
-const keyDayHour = (d: Date) =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
-    d.getDate()
-  ).padStart(2, "0")}|${String(d.getHours()).padStart(2, "0")}`;
+function key(d: Date) {
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}-${d.getHours()}-${d.getMinutes()}`;
+}
 
-function buildBusyIndex(slots: TimeSlot[]) {
+function parseLocalDate(str: string) {
+  const [datePart, timePart] = str.split("T");
+  const [y, m, d] = datePart.split("-").map(Number);
+  const [hh, mm, ss] = timePart.split(":").map(Number);
+  return new Date(y, m - 1, d, hh, mm, ss ?? 0);
+}
+
+function buildBusy(slots: TimeSlot[]) {
   const set = new Set<string>();
+
   for (const s of slots) {
     if (s.status !== "busy") continue;
-    const ds = new Date(s.start);
-    ds.setMinutes(0, 0, 0);
-    set.add(keyDayHour(ds));
+
+    const d = parseLocalDate(s.start);
+    d.setSeconds(0, 0);
+    set.add(key(d));
   }
+
   return set;
 }
 
+// =======================================
+// 🔥 COMPONENTE PRINCIPAL
+// =======================================
 export default function WeekScheduleTable({
   pro,
   onPick,
 }: {
   pro: Professional;
-  onPick?: (p: { dateISO: string; label: string }) => void;
+  onPick?: (slot: { dateISO: string; label: string }) => void;
 }) {
+  const [weekOffset, setWeekOffset] = useState(0);
+
   const { rowLabels, days, grid } = useMemo(() => {
-    const today = new Date();
-    const workingDays = new Set(pro.workingDays ?? [1, 2, 3, 4, 5]);
+    const base = new Date();
+    base.setDate(base.getDate() + weekOffset * 7);
 
-    const parsed = parseHoursLabel(pro.hoursLabel);
-    const minH = parsed?.minH ?? 8;
-    const maxH = parsed?.maxH ?? 20;
+    const busy = buildBusy(pro.slots);
 
-    const hourRows = buildHourRows(minH, maxH, today);
-    const rowLabels = hourRows.map((h) => h.label);
-    const days = Array.from({ length: 7 }, (_, i) => addDays(startOfDay(today), i));
+    const days = Array.from({ length: 7 }, (_, i) => addDays(startOfDay(new Date(base)), i));
 
-    const busyIdx = buildBusyIndex(pro.slots);
+    // ============================
+    // 🔥 Por cada día elegimos horario
+    // ============================
+// =========================
+// 🔥 Construir TODAS las horas posibles
+// =========================
+let allHours: Set<string> = new Set();
 
-    const grid: Cell[][] = hourRows.map((hRow) =>
+days.forEach((d) => {
+  const day = d.getDay();
+
+  if (day === 0) return; // domingo off
+
+  const start = day === 6 ? pro.hoursSatStart : pro.hoursWeekStart;
+  const end   = day === 6 ? pro.hoursSatEnd   : pro.hoursWeekEnd;
+
+  const { h: sh, m: sm } = parseHM(start);
+  const { h: eh, m: em } = parseHM(end);
+
+  const rows = buildQuarterRows(sh, sm, eh, em, d);
+  rows.forEach((r) => allHours.add(r.label));
+});
+
+// Ordenar horas
+const rowLabels = Array.from(allHours).sort((a, b) => {
+  const [ah, am] = a.split(":").map(Number);
+  const [bh, bm] = b.split(":").map(Number);
+  return ah === bh ? am - bm : ah - bh;
+});
+
+    function toLocalISOString(d: Date) {
+      const pad = (n: number) => n.toString().padStart(2, "0");
+      return (
+        d.getFullYear() +
+        "-" + pad(d.getMonth() + 1) +
+        "-" + pad(d.getDate()) +
+        "T" + pad(d.getHours()) +
+        ":" + pad(d.getMinutes()) +
+        ":00"
+      );
+    }
+
+    // ============================
+    // 🔥 GRID FINAL 7 DÍAS × ROWS
+    // ============================
+    const grid: Cell[][] = rowLabels.map((label) =>
       days.map((d) => {
-        const cellDate = new Date(d);
-        cellDate.setHours(hRow.date.getHours(), 0, 0, 0);
-        const dateISO = cellDate.toISOString();
+        const day = d.getDay();
 
-        if (!workingDays.has(d.getDay())) {
-          return { dateISO, label: hourLabel(cellDate), status: "off" };
+        if (day === 0) {
+          return { dateISO: "", label, status: "off" };
         }
-        const k = keyDayHour(cellDate);
-        if (busyIdx.has(k)) return { dateISO, label: hourLabel(cellDate), status: "busy" };
-        return { dateISO, label: hourLabel(cellDate), status: "available" };
+
+        let start = pro.hoursWeekStart;
+        let end = pro.hoursWeekEnd;
+
+        if (day === 6) {
+          start = pro.hoursSatStart;
+          end = pro.hoursSatEnd;
+        }
+
+        const { h: sh, m: sm } = parseHM(start);
+        const { h: eh, m: em } = parseHM(end);
+
+        const [lh, lm] = label.split(":").map(Number);
+const inside =
+  (lh > sh || (lh === sh && lm >= sm)) &&
+  (lh < eh || (lh === eh && lm <= em));
+
+if (!inside) {
+  return { dateISO: "", label, status: "off" };
+}
+
+
+        const x = new Date(d);
+        x.setHours(lh, lm, 0, 0);
+        const iso = toLocalISOString(x);
+
+        if (busy.has(key(x))) {
+          return { dateISO: iso, label, status: "busy" };
+        }
+
+        return { dateISO: iso, label, status: "available" };
       })
     );
 
     return { rowLabels, days, grid };
-  }, [pro]);
+  }, [pro, weekOffset]);
 
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const scrollBy = (dx: number) => scrollerRef.current?.scrollBy({ left: dx, behavior: "smooth" });
+  const scroller = useRef<HTMLDivElement>(null);
+
+  // ======================
+  // 🔥 CLASES
+  // ======================
+  const baseBtn =
+    "w-full px-2 py-2 rounded-md text-[13px] font-medium transition text-center select-none";
+
+  const clsAvailable =
+    "bg-primary/10 border border-primary text-primary hover:bg-primary hover:text-primary-foreground";
+
+  const clsBusy =
+    "bg-[#2d0b18] border border-pink-800 text-pink-700 cursor-not-allowed opacity-50";
+
+  const clsOff = "bg-muted border-border text-muted-foreground cursor-not-allowed";
 
   return (
     <div className="relative">
-      {/* Botones de scroll X en móvil */}
-      <div className="mb-2 flex gap-2 md:hidden justify-end">
+
+      {/* Navegación semanas */}
+      <div className="flex justify-between items-center mb-4">
         <button
-          onClick={() => scrollBy(-280)}
-          className="px-2 py-1 text-xs rounded-md border bg-white"
-          aria-label="Scroll izquierda"
+          onClick={() => setWeekOffset(weekOffset - 1)}
+          className="px-4 py-2 rounded-lg bg-secondary text-muted-foreground border border-border hover:bg-muted"
         >
-          ←
+          ← Semana anterior
         </button>
+
+        <span className="text-primary font-semibold text-sm">
+          Semana del {fmtDay(days[0])}
+        </span>
+
         <button
-          onClick={() => scrollBy(280)}
-          className="px-2 py-1 text-xs rounded-md border bg-white"
-          aria-label="Scroll derecha"
+          onClick={() => setWeekOffset(weekOffset + 1)}
+          className="px-4 py-2 rounded-lg bg-secondary text-muted-foreground border border-border hover:bg-muted"
         >
-          →
+          Semana siguiente →
         </button>
       </div>
 
-      <div className="border rounded-2xl overflow-hidden shadow-sm">
-        {/* ÚNICO scroller (XY) y altura máx para el diálogo */}
-        <div
-          ref={scrollerRef}
-          className="overflow-auto max-h-[62vh]"
-          style={{ WebkitOverflowScrolling: "touch" }}
-        >
-          <table className="w-full min-w-[860px] md:min-w-[1024px] table-fixed border-separate border-spacing-0">
-            <thead className="bg-white">
+      {/* TABLA */}
+      <div className="border border-border rounded-2xl overflow-hidden shadow bg-card text-card-foreground">
+        <div ref={scroller} className="overflow-auto max-h-[62vh]">
+          <table className="w-full table-fixed border-separate border-spacing-0">
+            
+            {/* HEADER */}
+            <thead className="bg-secondary sticky top-0 z-40 text-muted-foreground">
               <tr>
-                {/* Esquina/Hora: mismo alto/nowrap para que no “salte” */}
-                <th
-                  className="sticky left-0 top-0 z-40 bg-white text-left px-3 py-2 text-[11px] font-semibold text-slate-500 border-b w-[110px] whitespace-nowrap"
-                >
+                <th className="sticky left-0 top-0 z-50 bg-secondary px-3 py-2 text-[11px] font-semibold border-b border-border text-foreground">
                   Hora
                 </th>
                 {days.map((d, i) => (
                   <th
                     key={i}
-                    className="sticky top-0 z-30 bg-white px-3 py-2 text-[11px] font-semibold text-slate-500 border-b min-w-[130px]"
+                    className="px-3 py-2 text-[11px] font-semibold border-b border-border text-foreground"
                   >
-                    {dayFmtFull(d)}
+                    {fmtDay(d)}
                   </th>
                 ))}
               </tr>
             </thead>
 
+            {/* BODY */}
             <tbody>
-              {grid.map((row, r) => (
-                <tr key={r}>
-                  {/* Primera col sticky con nowrap (evita que la hora “se salga”) */}
-                  <td className="sticky left-0 z-10 bg-white px-3 py-2 text-[13px] font-medium text-slate-700 border-b whitespace-nowrap">
-                    {rowLabels[r]}
+              {grid.map((row, i) => (
+                <tr key={i}>
+                  <td className="sticky left-0 bg-secondary z-30 px-3 py-2 text-[13px] font-medium border-b border-border text-foreground">
+                    {rowLabels[i]}
                   </td>
 
-                  {row.map((cell, c) => {
-                    const base =
-                      "w-full px-2 py-1.5 rounded-lg border text-[13px] font-medium transition text-center";
-                    const off =
-                      "bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed";
-                    const busy =
-                      "bg-rose-50 border-rose-200 text-rose-600 cursor-not-allowed";
-                    const free =
-                      "bg-green-50 border-green-200 text-green-700 hover:bg-green-100 cursor-pointer";
-                    const cls = cell.status === "off" ? off : cell.status === "busy" ? busy : free;
+                  {row.map((cel, j) => {
+                    const cls =
+                      cel.status === "available"
+                        ? clsAvailable
+                        : cel.status === "busy"
+                        ? clsBusy
+                        : clsOff;
 
                     return (
-                      <td key={c} className="p-1 border-b align-middle">
+                      <td key={j} className="p-1 border-b border-border">
                         <button
-                          disabled={cell.status !== "available"}
                           onClick={() =>
-                            cell.status === "available" &&
-                            onPick?.({ dateISO: cell.dateISO, label: cell.label })
+                            cel.status === "available" &&
+                            onPick?.({ dateISO: cel.dateISO, label: cel.label })
                           }
-                          className={`${base} ${cls} w-full`}
+                          disabled={cel.status !== "available"}
+                          className={`${baseBtn} ${cls}`}
                         >
-                          {cell.status === "off"
-                            ? "—"
-                            : cell.status === "busy"
+                          {cel.status === "available"
+                            ? "Disponible"
+                            : cel.status === "busy"
                             ? "Ocupado"
-                            : "Disponible"}
+                            : "—"}
                         </button>
                       </td>
                     );
                   })}
                 </tr>
               ))}
-              <tr>
-                <td colSpan={days.length + 1} className="h-2" />
-              </tr>
             </tbody>
+
           </table>
         </div>
       </div>
 
-      {/* Leyenda */}
-      <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-slate-500">
-        <span className="inline-flex items-center gap-1">
-          <span className="h-3 w-3 rounded bg-green-100 border border-green-200" /> Disponible
+      {/* LEYENDA */}
+      <div className="mt-4 flex gap-4 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1">
+          <span className="h-3 w-3 rounded bg-primary/20 border border-primary" /> Libre
         </span>
-        <span className="inline-flex items-center gap-1">
-          <span className="h-3 w-3 rounded bg-rose-100 border border-rose-200" /> Ocupado
+        <span className="flex items-center gap-1">
+          <span className="h-3 w-3 rounded bg-primary/30 border border-primary" /> Ocupado
         </span>
-        <span className="inline-flex items-center gap-1">
-          <span className="h-3 w-3 rounded bg-slate-100 border border-slate-200" /> No laboral
+        <span className="flex items-center gap-1">
+          <span className="h-3 w-3 rounded bg-muted border border-border" /> No Laboral
         </span>
       </div>
+
     </div>
   );
 }

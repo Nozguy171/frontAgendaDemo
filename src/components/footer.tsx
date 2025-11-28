@@ -49,9 +49,10 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-primary" />
-                <a href="tel:+526861234567" className="hover:text-primary transition">
-                  (686) 123 4567
-                </a>
+<a href="tel:+526861234567" className="text-2xl font-bold hover:text-primary transition">
+  (+52) 686 123 4567
+</a>
+
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-primary" />
@@ -61,20 +62,30 @@ export default function Footer() {
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 text-primary mt-0.5" />
-                <span>Mexicali, BC — Área Juventud 2000</span>
+                <span>Mexicali, BC — Islas Hawai #682</span>
               </li>
             </ul>
           </div>
 
-          {/* HORARIO */}
-          <div>
-            <h4 className="font-semibold mb-4 text-primary">Horario</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>8:00 AM - 8:00 PM</li>
-              <li>Lunes a sábado</li>
-              <li>Domingo cerrado</li>
-            </ul>
-          </div>
+{/* HORARIO */}
+<div>
+  <h4 className="font-semibold mb-4 text-primary">Horario</h4>
+  <ul className="space-y-2 text-sm text-muted-foreground">
+    <li>
+      <span className="font-semibold text-foreground">Lunes a Viernes:</span>{" "}
+      10:00 AM – 7:00 PM
+    </li>
+    <li>
+      <span className="font-semibold text-foreground">Sábado:</span>{" "}
+      10:00 AM – 4:00 PM
+    </li>
+    <li>
+      <span className="font-semibold text-foreground">Domingo:</span>{" "}
+      Cerrado
+    </li>
+  </ul>
+</div>
+
         </div>
 
 

@@ -200,19 +200,26 @@ export default function Page() {
 
       <section className="py-12 md:py-16 bg-primary text-white border-y">
         <div className="container">
-          <Reveal variants={stagger} className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12" retrigger amount={0.25}>
-            {[
-{ label: "Años de experiencia", value: "+8" },
-{ label: "Clientes felices", value: "+1200" },
-{ label: "Servicios premium", value: "100%" },
-              { label: "Horario extendido", value: "8AM-8PM" },
-            ].map((stat, i) => (
-              <motion.div key={i} variants={fadeInUp} className="text-center">
-                <p className="text-3xl md:text-4xl font-bold mb-2">{stat.value}</p>
-                <p className="text-sm opacity-90">{stat.label}</p>
-              </motion.div>
-            ))}
-          </Reveal>
+<Reveal
+  variants={stagger}
+  className="grid grid-cols-2 md:grid-cols-5 gap-6"
+  retrigger
+  amount={0.25}
+>
+  {[
+    { label: "Años de experiencia", value: "+8" },
+    { label: "Clientes felices", value: "+1200" },
+    { label: "Servicios premium", value: "100%" },
+    { label: "Horario entre semana", value: "10AM-7PM" },
+    { label: "Horario sábado", value: "10AM-4PM" },
+  ].map((stat, i) => (
+    <motion.div key={i} variants={fadeInUp} className="text-center">
+      <p className="text-xl md:text-2xl font-bold mb-1">{stat.value}</p>
+      <p className="text-xs opacity-80">{stat.label}</p>
+    </motion.div>
+  ))}
+</Reveal>
+
         </div>
       </section>
 
@@ -235,7 +242,7 @@ export default function Page() {
         {/* Carbón activado */}
 <Card className="p-6 border-border bg-card">
           <div className="h-48 w-full relative rounded-xl overflow-hidden mb-4">
-            <Image src="/images/catalogo/carbon.jpg" alt="Facial carbón" fill className="object-cover" />
+            <Image src="/images2/carbon.webp" alt="Facial carbón" fill className="object-cover" />
           </div>
           <h4 className="text-xl font-bold mb-2">Carbón activado</h4>
           <p className="text-muted-foreground">Mascarilla purificante contra impurezas.</p>
@@ -244,7 +251,7 @@ export default function Page() {
         {/* Rejuvenecedor */}
 <Card className="p-6 border-border bg-card">
           <div className="h-48 w-full relative rounded-xl overflow-hidden mb-4">
-            <Image src="/images/catalogo/rejuvenecedor.jpg" alt="Facial rejuvenecedor" fill className="object-cover" />
+            <Image src="/images2/rejuvenece.jpg" alt="Facial rejuvenecedor" fill className="object-cover" />
           </div>
           <h4 className="text-xl font-bold mb-2">Rejuvenecedor</h4>
           <p className="text-muted-foreground">Tratamiento para líneas finas y arrugas.</p>
@@ -253,7 +260,7 @@ export default function Page() {
         {/* Humectante */}
 <Card className="p-6 border-border bg-card">
           <div className="h-48 w-full relative rounded-xl overflow-hidden mb-4">
-            <Image src="/images/catalogo/humectante.jpg" alt="Facial humectante" fill className="object-cover" />
+            <Image src="/images2/humecta.jpg" alt="Facial humectante" fill className="object-cover" />
           </div>
           <h4 className="text-xl font-bold mb-2">Humectante</h4>
           <p className="text-muted-foreground">Hidratación profunda para suavizar la piel.</p>
@@ -271,7 +278,7 @@ export default function Page() {
         {/* Relajante */}
 <Card className="p-6 border-border bg-card">
           <div className="h-48 w-full relative rounded-xl overflow-hidden mb-4">
-            <Image src="/images/catalogo/relajante.jpg" alt="Masaje relajante" fill className="object-cover" />
+            <Image src="/images2/relaja.jpg" alt="Masaje relajante" fill className="object-cover" />
           </div>
           <h4 className="text-xl font-bold mb-2">Masaje relajante</h4>
           <p className="text-muted-foreground">Reduce estrés y calma la mente.</p>
@@ -280,7 +287,7 @@ export default function Page() {
         {/* Reparador */}
 <Card className="p-6 border-border bg-card">
           <div className="h-48 w-full relative rounded-xl overflow-hidden mb-4">
-            <Image src="/images/catalogo/reparador.jpg" alt="Masaje reparador" fill className="object-cover" />
+            <Image src="/images2/reparador.jpg" alt="Masaje reparador" fill className="object-cover" />
           </div>
           <h4 className="text-xl font-bold mb-2">Masaje reparador</h4>
           <p className="text-muted-foreground">Alivia dolores y contracturas.</p>
@@ -289,7 +296,7 @@ export default function Page() {
         {/* Deportivo */}
 <Card className="p-6 border-border bg-card">
           <div className="h-48 w-full relative rounded-xl overflow-hidden mb-4">
-            <Image src="/images/catalogo/deportivo.jpg" alt="Masaje deportivo" fill className="object-cover" />
+            <Image src="/images2/deportivo.jpg" alt="Masaje deportivo" fill className="object-cover" />
           </div>
           <h4 className="text-xl font-bold mb-2">Masaje deportivo</h4>
           <p className="text-muted-foreground">Optimiza rendimiento y recuperación.</p>
@@ -551,13 +558,14 @@ export default function Page() {
         <div className="container max-w-6xl">
           <div className="rounded-3xl overflow-hidden border border-border shadow-2xl relative min-h-[500px]">
             <div className="relative w-full h-[500px]">
-              <iframe
-                className="h-full w-full"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                src={`https://maps.google.com/maps?q=${MAP.lat},${MAP.lng}&z=${MAP.zoom}&t=m&hl=es&output=embed&disableDefaultUI=1`}
-                title="Ubicación"
-              />
+<iframe
+  className="h-full w-full"
+  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3360.5494089096537!2d-115.4818943!3d32.6181896!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80d77a708b53fc87%3A0xfa10e454c690a4e!2sIsla%20Hawai%20682%2C%20Jardines%20del%20Lago%2C%2021330%20Mexicali%2C%20B.C.!5e0!3m2!1ses!2smx!4v1764364700446!5m2!1ses!2smx"
+  style={{ border: 0 }}
+  loading="lazy"
+  referrerPolicy="no-referrer-when-downgrade"
+/>
+
             </div>
 
 
@@ -587,7 +595,7 @@ export default function Page() {
         variant="outline" 
         className="w-full py-3 text-base border-primary/40 text-primary hover:bg-primary/10"
       >
-        <a href="https://wa.me/526861234567?text=Hola%20tengo%20una%20pregunta">
+        <a href="https://wa.me/526865092483?text=Hola%20tengo%20una%20pregunta">
           Preguntar por WhatsApp
         </a>
       </Button>
@@ -616,16 +624,20 @@ export default function Page() {
           <Reveal variants={stagger} className="col-span-full grid grid-cols-1 md:grid-cols-3 gap-8" retrigger amount={0.25}>
             <motion.div variants={fadeInUp} className="space-y-2">
               <p className="text-sm uppercase tracking-widest font-bold text-primary">Teléfono</p>
-              <a href="tel:+526861234567" className="text-2xl font-bold hover:text-primary transition">
-                (686) 123 4567
-              </a>
+<a href="tel:+526861234567" className="text-2xl font-bold hover:text-primary transition">
+  (+52) 686 123 4567
+</a>
+
               <p className="text-sm text-muted-foreground">Disponible 24/7 por WhatsApp</p>
             </motion.div>
 
             <motion.div variants={fadeInUp} className="space-y-2">
-              <p className="text-sm uppercase tracking-widest font-bold text-primary">Horario</p>
-              <p className="text-2xl font-bold">8:00 AM - 8:00 PM</p>
-              <p className="text-sm text-muted-foreground">Lunes a sábado</p>
+<p className="text-2xl font-bold">10:00 AM - 7:00 PM</p>
+<p className="text-sm text-muted-foreground">Lunes a Viernes</p>
+
+<p className="text-2xl font-bold mt-4">10:00 AM - 4:00 PM</p>
+<p className="text-sm text-muted-foreground">Sábado</p>
+
             </motion.div>
 
             <motion.div variants={fadeInUp} className="space-y-2">
@@ -657,7 +669,7 @@ Agenda tu masaje o facial con Paloma Romero y vive la experiencia Divas Spa.
       <Footer />
 
 <a
-  href="https://wa.me/526861234567?text=Hola%20quisiera%20agendar%20una%20cita"
+href="https://wa.me/526861234567?text=Hola%20quisiera%20agendar%20una%20cita"
   target="_blank"
   rel="noreferrer"
   className="fixed right-6 bottom-6 z-50 h-16 w-16 rounded-full bg-green-500 text-white shadow-xl hover:shadow-2xl hover:scale-110 transition-all flex items-center justify-center"

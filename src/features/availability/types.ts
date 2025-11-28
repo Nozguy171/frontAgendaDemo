@@ -3,16 +3,20 @@ export type TimeSlot = {
   end: string;    // ISO
   status: "available" | "busy";
 };
-
 export type Professional = {
   id: string;
   name: string;
   role: string;
   phone?: string;
-  photoUrl?: string;     // ej: "/images/ana.jpg"
-  hoursLabel?: string;   // "Lun–Vie 9–18 h"
+  photoUrl?: string;
+
+  hoursWeekStart: string; // "10:00"
+  hoursWeekEnd: string;   // "19:00"
+
+  hoursSatStart: string;  // "10:00"
+  hoursSatEnd: string;    // "16:00"
+
   skills: string[];
-  slots: TimeSlot[];     // agenda del DÍA base (hoy)
-  /** 0=Dom ... 6=Sáb  (p.ej. [1,2,3,4,5] = Lun-Vie) */
+  slots: TimeSlot[];
   workingDays?: number[];
 };
