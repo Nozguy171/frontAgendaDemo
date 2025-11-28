@@ -1,184 +1,139 @@
-/* --- Tailwind (v3-style) --- */
+/* ===========================
+   VARIABLES (DIVAS SPA • DARK THEME)
+   =========================== */
+:root {
+  --background: #0e0e11;          /* negro elegante */
+  --foreground: #fafafa;          /* blanco cálido */
+
+  --primary: #ff2fa8;             /* rosa neón DIVAS */
+  --primary-foreground: #0e0e11;
+
+  --card: #1a1a1d;                /* gris oscuro */
+  --card-foreground: var(--foreground);
+
+  --secondary: #232326;
+  --secondary-foreground: var(--foreground);
+
+  --muted: #2d2d31;
+  --muted-foreground: #bdbdbf;
+
+  --accent: #ff2fa8;
+  --accent-foreground: #0e0e11;
+
+  --border: #222226;
+  --input: #1a1a1d;
+
+  --ring: #ff2fa8;
+
+  --radius: 0.75rem;
+}
+
+/* ===========================
+   TAILWIND
+   =========================== */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ===========================
-   Tokens (light) - Premium palette
+   BASE GLOBAL
    =========================== */
-:root {
-  /* Base que ya usabas, ahora con paleta premium OKLCH */
-  --background: oklch(0.98 0.01 70);
-  --foreground: oklch(0.15 0.02 70);
-
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.02 70);
-
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.02 70);
-
-  --primary: oklch(0.45 0.15 200);
-  --primary-foreground: oklch(1 0 0);
-
-  --secondary: oklch(0.95 0.01 70);
-  --secondary-foreground: oklch(0.15 0.02 70);
-
-  --muted: oklch(0.92 0.01 70);
-  --muted-foreground: oklch(0.5 0.02 70);
-
-  --accent: oklch(0.45 0.15 200);
-  --accent-foreground: oklch(1 0 0);
-
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-
-  --border: oklch(0.95 0.01 70);
-  --input: oklch(0.98 0.01 70);
-  --ring: oklch(0.45 0.15 200);
-
-  --chart-1: oklch(0.45 0.15 200);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-
-  --radius: 0.5rem;
-
-  /* Sidebar (si la usas) */
-  --sidebar: oklch(0.98 0.01 70);
-  --sidebar-foreground: oklch(0.15 0.02 70);
-  --sidebar-primary: oklch(0.45 0.15 200);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.95 0.01 70);
-  --sidebar-accent-foreground: oklch(0.15 0.02 70);
-  --sidebar-border: oklch(0.95 0.01 70);
-  --sidebar-ring: oklch(0.45 0.15 200);
-}
-
-/* ===========================
-   Tokens (dark)
-   =========================== */
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
-}
-
-/* ===========================
-   Base
-   =========================== */
-html, body { height: 100%; }
-
 @layer base {
-  * { @apply border-border; }
-  body { @apply bg-background text-foreground; }
+  * {
+    @apply border-border;
+  }
 
-  /* Headings con serif elegante (si no tienes font-serif, usa la default) */
-  h1,h2,h3,h4,h5,h6 { @apply font-serif; }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    @apply antialiased;
+  }
 
-  /* Transiciones suaves (sin exagerar) */
-  a, button, .btn, .card { @apply transition-all duration-300; }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-tight;
+  }
 }
 
 /* ===========================
-   Utilidades/Componentes (override de tus clases)
+   UTILIDADES DIVAS
    =========================== */
 @layer utilities {
-  /* Contenedor ancho bonito */
-  .container { @apply max-w-7xl mx-auto; }
+  .container {
+    @apply max-w-7xl mx-auto px-4;
+  }
 
-  /* Secciones (mantengo tu clase con padding más pro) */
-  .section { @apply py-20 md:py-28 px-4; }
+  .section {
+    @apply py-20 md:py-28;
+    background-color: var(--background); /* forzamos fondo oscuro */
+  }
 
-  /* Tipografías */
-  .h1 { @apply text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-balance; }
-  .h2 { @apply text-4xl md:text-5xl font-bold leading-tight text-balance; }
+  /* TITULOS */
+  .h1 { @apply text-5xl md:text-6xl lg:text-7xl font-bold leading-tight; }
+  .h2 { @apply text-4xl md:text-5xl font-bold leading-tight; }
   .h3 { @apply text-2xl md:text-3xl font-semibold; }
 
-  /* Lead: mantengo tu intención pero con color de muted */
-  .lead { @apply text-xl md:text-2xl leading-relaxed max-w-2xl; color: var(--muted-foreground); }
-
-  /* Botones base */
-  .btn { @apply inline-flex items-center justify-center rounded-2xl px-5 py-3 font-medium shadow-sm hover:shadow-md; }
-
-  /* Botón primario con tu token --primary */
-  .btn-primary { 
-    @apply px-8 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 hover:shadow-lg;
+  /* Lead paragraphs */
+  .lead {
+    @apply text-xl md:text-2xl leading-relaxed max-w-2xl;
+    color: var(--muted-foreground);
   }
 
-  /* Botón outline elegante con color de marca */
-  .btn-outline { 
-    @apply px-8 py-3 rounded-lg border-2 border-primary text-primary hover:bg-primary/5 font-semibold;
+  /* BOTONES */
+  .btn-primary {
+    @apply px-8 py-3 rounded-lg font-semibold shadow-md text-primary-foreground;
+    background: var(--primary);
   }
 
- .card {
-   @apply rounded-2xl border p-6 shadow-sm;
-   background: var(--card);
-   color: var(--card-foreground);
-}
-  /* Glassmorphism opcional */
-  .glass { @apply bg-white/80 backdrop-blur-md border border-white/20; }
+  .btn-primary:hover {
+    background: #ff46b3;
+  }
+
+  .btn-outline {
+    @apply px-8 py-3 rounded-lg font-semibold border-2 text-primary border-primary;
+  }
+
+  .btn-outline:hover {
+    background: rgba(255, 47, 168, 0.1);
+  }
+
+  /* CARDS */
+  .card {
+    @apply rounded-2xl border shadow-sm p-6;
+    background-color: var(--card);
+    color: var(--card-foreground);
+  }
+
+  /* SCROLLBARS */
+  .no-scrollbar { 
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
+  }
+  .no-scrollbar::-webkit-scrollbar { 
+    display: none; 
+  }
 }
 
 /* ===========================
-   Scrollbars y máscaras (tus clases, intactas)
+   GRADIENTS (ajustados a colores reales)
    =========================== */
-/* Scrollbar suave para carruseles */
-.scrollbar-soft{scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent}
-.scrollbar-soft::-webkit-scrollbar{height:10px}
-.scrollbar-soft::-webkit-scrollbar-track{background:transparent}
-.scrollbar-soft::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:9999px}
-.scrollbar-soft:hover::-webkit-scrollbar-thumb{background:#cbd5e1}
-
-/* Fade en bordes del carrusel */
-.mask-fade{
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 32px, #000 calc(100% - 32px), transparent 100%);
-          mask-image: linear-gradient(90deg, transparent 0, #000 32px, #000 calc(100% - 32px), transparent 100%);
+.bg-soft-gradient {
+  background: linear-gradient(
+    to bottom right,
+    #0e0e11 0%,
+    #151518 50%,
+    rgba(255, 47, 168, 0.05) 100%
+  );
 }
 
-/* Oculta scroll horizontal visualmente */
-.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-.hide-scrollbar::-webkit-scrollbar { display: none; }
+.bg-primary-soft {
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 47, 168, 0.15),
+    rgba(255, 47, 168, 0.05)
+  );
+}
 
-/* Oculta scrollbar en contenedores horizontales bonitos */
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-.no-scrollbar::-webkit-scrollbar { display: none; }
+.title-glow {
+  color: var(--primary);
+  text-shadow: 0 0 12px rgba(255, 47, 168, 0.4);
+}
