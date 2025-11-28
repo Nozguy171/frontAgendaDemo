@@ -624,8 +624,8 @@ export default function Page() {
           <Reveal variants={stagger} className="col-span-full grid grid-cols-1 md:grid-cols-3 gap-8" retrigger amount={0.25}>
             <motion.div variants={fadeInUp} className="space-y-2">
               <p className="text-sm uppercase tracking-widest font-bold text-primary">Teléfono</p>
-<a href="tel:+526861234567" className="text-2xl font-bold hover:text-primary transition">
-  (+52) 686 123 4567
+<a href="tel:+526865092483" className="text-2xl font-bold hover:text-primary transition">
+  (+52) 686 509 2483
 </a>
 
               <p className="text-sm text-muted-foreground">Disponible 24/7 por WhatsApp</p>
@@ -642,8 +642,8 @@ export default function Page() {
 
             <motion.div variants={fadeInUp} className="space-y-2">
               <p className="text-sm uppercase tracking-widest font-bold text-primary">Ubicación</p>
-              <p className="text-sm font-semibold">Av. Reforma 123, Mexicali, BC</p>
-              <p className="text-sm text-muted-foreground">Centro Recreativo Juventud 2000</p>
+              <p className="text-sm font-semibold">Islas Hawai #682, Mexicali, BC</p>
+              <p className="text-sm text-muted-foreground">Jardines del Lago</p>
             </motion.div>
           </Reveal>
         </div>
