@@ -43,12 +43,12 @@ export default function AdminCalendarPage() {
 
   async function load() {
     const settingsRes = await fetch(
-      `http://localhost:7789/admin/settings?tenant=${TENANT}`
+      `https://api.demoagenda.shop/admin/settings?tenant=${TENANT}`
     );
     const settings = await settingsRes.json();
 
     const availRes = await fetch(
-      `http://localhost:7789/availability/week?tenant=${TENANT}`
+      `https://api.demoagenda.shop/availability/week?tenant=${TENANT}`
     );
     const data = await availRes.json();
 
@@ -84,7 +84,7 @@ setPro({
 
   async function handleCreate({ procedure, phone, name, slot, customerId }: any) {
     const resServices = await fetch(
-      `http://localhost:7789/services?tenant=${TENANT}`
+      `https://api.demoagenda.shop/services?tenant=${TENANT}`
     );
     const services = await resServices.json();
 
@@ -97,7 +97,7 @@ setPro({
     let finalCustomerId = customerId;
     if (!finalCustomerId) {
       const resNew = await fetch(
-        `http://localhost:7789/customers/create?tenant=${TENANT}`,
+        `https://api.demoagenda.shop/customers/create?tenant=${TENANT}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -111,7 +111,7 @@ setPro({
     const start = parseLocal(slot.dateISO);
     const end = new Date(start.getTime() + service.duration_minutes * 60000);
 
-    await fetch(`http://localhost:7789/admin/appointments`, {
+    await fetch(`https://api.demoagenda.shop/admin/appointments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

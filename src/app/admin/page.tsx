@@ -31,7 +31,7 @@ const [satEnd, setSatEnd] = useState<string>("");        // Sábado cierre
   // LOAD SETTINGS
   // ============================================
 async function loadSettings() {
-  const res = await fetch(`http://localhost:7789/admin/settings?tenant=${TENANT}`);
+  const res = await fetch(`https://api.demoagenda.shop/admin/settings?tenant=${TENANT}`);
   const data = await res.json();
 
   setName(data.name ?? "");
@@ -48,7 +48,7 @@ async function loadSettings() {
 
 
 async function saveSettings() {
-  await fetch(`http://localhost:7789/admin/settings?tenant=${TENANT}`, {
+  await fetch(`https://api.demoagenda.shop/admin/settings?tenant=${TENANT}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -74,14 +74,14 @@ async function saveSettings() {
   // SERVICES
   // ============================================
   async function loadServices() {
-    const res = await fetch(`http://localhost:7789/admin/services?tenant=${TENANT}`);
+    const res = await fetch(`https://api.demoagenda.shop/admin/services?tenant=${TENANT}`);
     setServices(await res.json());
   }
 
   async function createService() {
     if (!newServiceName || !newServiceDuration) return;
 
-    await fetch(`http://localhost:7789/admin/services?tenant=${TENANT}`, {
+    await fetch(`https://api.demoagenda.shop/admin/services?tenant=${TENANT}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -96,7 +96,7 @@ async function saveSettings() {
   }
 
   async function deleteService(id: number) {
-    await fetch(`http://localhost:7789/admin/services/${id}`, { method: "DELETE" });
+    await fetch(`https://api.demoagenda.shop/admin/services/${id}`, { method: "DELETE" });
     loadServices();
   }
 
@@ -113,7 +113,7 @@ async function saveSettings() {
 async function loadAppointmentsToday() {
   const today = getLocalDate();
   const res = await fetch(
-    `http://localhost:7789/appointments/day?tenant=${TENANT}&date=${today}`
+    `https://api.demoagenda.shop/appointments/day?tenant=${TENANT}&date=${today}`
   );
   const data = await res.json();
 

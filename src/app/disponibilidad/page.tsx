@@ -23,7 +23,7 @@ export default function DisponibilidadPage() {
 }
 
 async function reloadAvailability() {
-  const res = await fetch("http://localhost:7789/availability/week?tenant=divasspa");
+  const res = await fetch("https://api.demoagenda.shop/availability/week?tenant=divasspa");
   const data = await res.json();
 console.log("BUSY SLOTS →", data.busySlots);
 setPro({
@@ -57,7 +57,7 @@ setPro({
   // ============================
   useEffect(() => {
     async function load() {
-      const res = await fetch("http://localhost:7789/availability/week?tenant=divasspa");
+      const res = await fetch("https://api.demoagenda.shop/availability/week?tenant=divasspa");
       const data = await res.json();
 
 setPro({
@@ -117,7 +117,7 @@ console.log("slot.dateISO:", slot?.dateISO);
 console.log("parseLocal(slot.dateISO):", parseLocal(slot?.dateISO));
 
       const resServices = await fetch(
-        "http://localhost:7789/services?tenant=divasspa"
+        "https://api.demoagenda.shop/services?tenant=divasspa"
       );
       const services = await resServices.json();
 
@@ -132,7 +132,7 @@ console.log("parseLocal(slot.dateISO):", parseLocal(slot?.dateISO));
 
       if (!finalCustomerId) {
         const resNew = await fetch(
-          "http://localhost:7789/customers/create?tenant=divasspa",
+          "https://api.demoagenda.shop/customers/create?tenant=divasspa",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -152,7 +152,7 @@ const end = new Date(start.getTime() + service.duration_minutes * 60000);
 
       // 4) CREAR CITA
       const resAppt = await fetch(
-        "http://localhost:7789/admin/appointments",
+        "https://api.demoagenda.shop/admin/appointments",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
