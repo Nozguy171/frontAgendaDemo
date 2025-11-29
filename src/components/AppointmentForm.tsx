@@ -34,7 +34,7 @@ export default function AppointmentForm({
 
       try {
         const res = await fetch(
-          "http://localhost:7789/customers/check?tenant=divasspa",
+          "https://api.demoagenda.shop/customers/check?tenant=divasspa",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
