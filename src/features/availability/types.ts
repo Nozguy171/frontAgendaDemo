@@ -1,4 +1,5 @@
 export type TimeSlot = {
+    id: number;                 // 👈 LO AGREGAMOS
   start: string;  // ISO
   end: string;    // ISO
   status: "available" | "busy";
@@ -10,13 +11,17 @@ export type Professional = {
   phone?: string;
   photoUrl?: string;
 
-  hoursWeekStart: string; // "10:00"
-  hoursWeekEnd: string;   // "19:00"
+  hoursWeekStart: string;
+  hoursWeekEnd: string;
 
-  hoursSatStart: string;  // "10:00"
-  hoursSatEnd: string;    // "16:00"
+  hoursSatStart: string;
+  hoursSatEnd: string;
+
+  hoursSunStart: string;   // 🔥 AGREGAR
+  hoursSunEnd: string;     // 🔥 AGREGAR
 
   skills: string[];
   slots: TimeSlot[];
   workingDays?: number[];
 };
+

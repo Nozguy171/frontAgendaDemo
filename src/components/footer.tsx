@@ -68,20 +68,21 @@ export default function Footer() {
           </div>
 
 {/* HORARIO */}
+{/* HORARIO */}
 <div>
   <h4 className="font-semibold mb-4 text-primary">Horario</h4>
   <ul className="space-y-2 text-sm text-muted-foreground">
     <li>
       <span className="font-semibold text-foreground">Lunes a Viernes:</span>{" "}
-      10:00 AM – 7:00 PM
+      9:00 AM – 7:00 PM
     </li>
     <li>
       <span className="font-semibold text-foreground">Sábado:</span>{" "}
-      10:00 AM – 4:00 PM
+      9:00 AM – 3:00 PM
     </li>
     <li>
       <span className="font-semibold text-foreground">Domingo:</span>{" "}
-      Cerrado
+      10:00 AM – 1:00 PM
     </li>
   </ul>
 </div>

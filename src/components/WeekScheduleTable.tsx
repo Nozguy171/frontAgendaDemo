@@ -2,7 +2,20 @@
 import { Professional, TimeSlot } from "@/features/availability/types";
 import { useMemo, useRef, useState } from "react";
 
-type Cell = { dateISO: string; label: string; status: "available" | "busy" | "off" };
+type Cell =
+  | {
+      dateISO: string;
+      label: string;
+      status: "available" | "off";
+      id?: undefined;
+    }
+  | {
+      dateISO: string;
+      label: string;
+      status: "busy";
+      id: number;
+    };
+
 
 const fmtDay = (d: Date) =>
   d.toLocaleDateString(undefined, { weekday: "short", day: "2-digit", month: "short" });
@@ -54,18 +67,19 @@ function parseLocalDate(str: string) {
 }
 
 function buildBusy(slots: TimeSlot[]) {
-  const set = new Set<string>();
+  const map = new Map<string, number>(); // key → appointmentId
 
   for (const s of slots) {
     if (s.status !== "busy") continue;
 
     const d = parseLocalDate(s.start);
     d.setSeconds(0, 0);
-    set.add(key(d));
+    map.set(key(d), s.id);   // <-- save appointmentId
   }
 
-  return set;
+  return map;
 }
+
 
 // =======================================
 // 🔥 COMPONENTE PRINCIPAL
@@ -73,10 +87,15 @@ function buildBusy(slots: TimeSlot[]) {
 export default function WeekScheduleTable({
   pro,
   onPick,
+  onPickBusy,
+  adminMode = false,
 }: {
   pro: Professional;
   onPick?: (slot: { dateISO: string; label: string }) => void;
+  onPickBusy?: (slot: { id: number; dateISO: string; label: string }) => void;  // 👈 AQUI
+  adminMode?: boolean;
 }) {
+
   const [weekOffset, setWeekOffset] = useState(0);
 
   const { rowLabels, days, grid } = useMemo(() => {
@@ -98,10 +117,15 @@ let allHours: Set<string> = new Set();
 days.forEach((d) => {
   const day = d.getDay();
 
-  if (day === 0) return; // domingo off
+const start =
+  day === 0 ? pro.hoursSunStart :
+  day === 6 ? pro.hoursSatStart :
+              pro.hoursWeekStart;
 
-  const start = day === 6 ? pro.hoursSatStart : pro.hoursWeekStart;
-  const end   = day === 6 ? pro.hoursSatEnd   : pro.hoursWeekEnd;
+const end =
+  day === 0 ? pro.hoursSunEnd :
+  day === 6 ? pro.hoursSatEnd :
+              pro.hoursWeekEnd;
 
   const { h: sh, m: sm } = parseHM(start);
   const { h: eh, m: em } = parseHM(end);
@@ -136,17 +160,16 @@ const rowLabels = Array.from(allHours).sort((a, b) => {
       days.map((d) => {
         const day = d.getDay();
 
-        if (day === 0) {
-          return { dateISO: "", label, status: "off" };
-        }
+let start =
+  day === 0 ? pro.hoursSunStart :
+  day === 6 ? pro.hoursSatStart :
+              pro.hoursWeekStart;
 
-        let start = pro.hoursWeekStart;
-        let end = pro.hoursWeekEnd;
+let end =
+  day === 0 ? pro.hoursSunEnd :
+  day === 6 ? pro.hoursSatEnd :
+              pro.hoursWeekEnd;
 
-        if (day === 6) {
-          start = pro.hoursSatStart;
-          end = pro.hoursSatEnd;
-        }
 
         const { h: sh, m: sm } = parseHM(start);
         const { h: eh, m: em } = parseHM(end);
@@ -165,9 +188,12 @@ if (!inside) {
         x.setHours(lh, lm, 0, 0);
         const iso = toLocalISOString(x);
 
-        if (busy.has(key(x))) {
-          return { dateISO: iso, label, status: "busy" };
-        }
+const apptId = busy.get(key(x));
+
+if (apptId) {
+  return { dateISO: iso, label, status: "busy", id: apptId };
+}
+
 
         return { dateISO: iso, label, status: "available" };
       })
@@ -181,8 +207,8 @@ if (!inside) {
   // ======================
   // 🔥 CLASES
   // ======================
-  const baseBtn =
-    "w-full px-2 py-2 rounded-md text-[13px] font-medium transition text-center select-none";
+const baseBtn =
+  "w-full px-1 py-1 sm:px-2 sm:py-2 text-[11px] sm:text-[13px] rounded-md font-medium transition text-center select-none whitespace-nowrap";
 
   const clsAvailable =
     "bg-primary/10 border border-primary text-primary hover:bg-primary hover:text-primary-foreground";
@@ -256,20 +282,53 @@ if (!inside) {
 
                     return (
                       <td key={j} className="p-1 border-b border-border">
-                        <button
-                          onClick={() =>
-                            cel.status === "available" &&
-                            onPick?.({ dateISO: cel.dateISO, label: cel.label })
-                          }
-                          disabled={cel.status !== "available"}
-                          className={`${baseBtn} ${cls}`}
-                        >
-                          {cel.status === "available"
-                            ? "Disponible"
-                            : cel.status === "busy"
-                            ? "Ocupado"
-                            : "—"}
-                        </button>
+<button
+
+  onClick={() => {
+    if (cel.status === "available") onPick?.({ dateISO: cel.dateISO, label: cel.label });
+    if (cel.status === "busy" && adminMode) onPickBusy?.({
+  id: cel.id,         
+  dateISO: cel.dateISO,
+  label: cel.label,
+  
+});
+
+  }}
+className={`${baseBtn} ${cls} min-w-[45px] sm:min-w-[0]`}
+
+>
+<span className="hidden sm:inline">
+  {/* DESKTOP */}
+  {adminMode
+    ? cel.status === "available"
+      ? "Crear cita"
+      : cel.status === "busy"
+        ? "Ver/editar"
+        : "—"
+    : cel.status === "available"
+      ? "Disponible"
+      : cel.status === "busy"
+        ? "Ocupado"
+        : "—"}
+</span>
+
+<span className="sm:hidden text-lg font-bold">
+  {/* MOBILE ICONS */}
+  {adminMode
+    ? cel.status === "available"
+      ? "+"
+      : cel.status === "busy"
+        ? "…"
+        : "—"
+    : cel.status === "available"
+      ? "✔"
+      : cel.status === "busy"
+        ? "X"
+        : "—"}
+</span>
+
+</button>
+
                       </td>
                     );
                   })}

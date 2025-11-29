@@ -202,7 +202,7 @@ export default function Page() {
         <div className="container">
 <Reveal
   variants={stagger}
-  className="grid grid-cols-2 md:grid-cols-5 gap-6"
+  className="grid grid-cols-2 md:grid-cols-6 gap-6"
   retrigger
   amount={0.25}
 >
@@ -210,8 +210,10 @@ export default function Page() {
     { label: "Años de experiencia", value: "+8" },
     { label: "Clientes felices", value: "+1200" },
     { label: "Servicios premium", value: "100%" },
-    { label: "Horario entre semana", value: "10AM-7PM" },
-    { label: "Horario sábado", value: "10AM-4PM" },
+    { label: "Horario entre semana", value: "9AM-7PM" },
+    { label: "Horario sábado", value: "9AM-3PM" },
+      { label: "Horario domingo", value: "10AM-1PM" },
+
   ].map((stat, i) => (
     <motion.div key={i} variants={fadeInUp} className="text-center">
       <p className="text-xl md:text-2xl font-bold mb-1">{stat.value}</p>
@@ -632,11 +634,15 @@ export default function Page() {
             </motion.div>
 
             <motion.div variants={fadeInUp} className="space-y-2">
-<p className="text-2xl font-bold">10:00 AM - 7:00 PM</p>
+<p className="text-2xl font-bold">9:00 AM - 7:00 PM</p>
 <p className="text-sm text-muted-foreground">Lunes a Viernes</p>
 
-<p className="text-2xl font-bold mt-4">10:00 AM - 4:00 PM</p>
+<p className="text-2xl font-bold mt-4">9:00 AM - 3:00 PM</p>
 <p className="text-sm text-muted-foreground">Sábado</p>
+
+<p className="text-2xl font-bold mt-4">10:00 AM - 1:00 PM</p>
+<p className="text-sm text-muted-foreground">Domingo</p>
+
 
             </motion.div>
 

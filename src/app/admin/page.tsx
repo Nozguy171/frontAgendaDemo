@@ -16,6 +16,8 @@ const [weekEnd, setWeekEnd] = useState<string>("");      // L-V cierre
 
 const [satStart, setSatStart] = useState<string>("");    // Sábado apertura
 const [satEnd, setSatEnd] = useState<string>("");        // Sábado cierre
+const [sunStart, setSunStart] = useState("");
+const [sunEnd, setSunEnd] = useState("");
 
   const [workingDays, setWorkingDays] = useState<number[]>([]);
 
@@ -42,6 +44,8 @@ async function loadSettings() {
 
   setSatStart(data.satStart ?? "");
   setSatEnd(data.satEnd ?? "");
+setSunStart(data.sunStart ?? "");
+setSunEnd(data.sunEnd ?? "");
 
   setWorkingDays(data.workingDays ?? [1,2,3,4,5,6]);
 }
@@ -51,18 +55,18 @@ async function saveSettings() {
   await fetch(`https://api.demoagenda.shop/admin/settings?tenant=${TENANT}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name,
-      phone,
+body: JSON.stringify({
+  name,
+  phone,
+  weekStart,
+  weekEnd,
+  satStart,
+  satEnd,
+  sunStart,
+  sunEnd,
+  workingDays
+}),
 
-      weekStart,
-      weekEnd,
-
-      satStart,
-      satEnd,
-
-      workingDays
-    }),
   });
 
   alert("Información del negocio actualizada ✔️");
@@ -242,6 +246,27 @@ async function loadAppointmentsToday() {
     onChange={(e) => setSatEnd(e.target.value)}
   />
 </div>
+{/* Domingo */}
+<div className="border p-4 rounded-lg">
+  <p className="font-semibold mb-2">Horario Domingo</p>
+
+  <label className="text-sm text-muted-foreground">Apertura</label>
+  <Input
+    type="time"
+    className="bg-secondary text-foreground mb-2"
+    value={sunStart}
+    onChange={(e) => setSunStart(e.target.value)}
+  />
+
+  <label className="text-sm text-muted-foreground">Cierre</label>
+  <Input
+    type="time"
+    className="bg-secondary text-foreground"
+    value={sunEnd}
+    onChange={(e) => setSunEnd(e.target.value)}
+  />
+</div>
+
 
         </div>
 
@@ -336,14 +361,45 @@ async function loadAppointmentsToday() {
           <p className="text-muted-foreground">No hay citas hoy.</p>
         )}
 
-        {appointmentsToday.map((a) => (
-          <div key={a.id} className="bg-secondary p-4 rounded-xl">
-            <p className="font-semibold">{a.customer?.name ?? "Cliente"}</p>
-            <p className="text-sm text-muted-foreground">
-              {a.startTime} — {a.endTime} • {a.service?.name}
-            </p>
-          </div>
-        ))}
+{appointmentsToday.length > 0 && (
+  <div className="grid gap-3">
+    {appointmentsToday.map((a) => (
+      <div
+        key={a.id}
+        className="
+          flex flex-col gap-2 p-4 rounded-xl
+          bg-[#1a1a1d] border border-neutral-700
+          shadow-[0_0_15px_rgba(255,47,168,0.15)]
+          transition hover:shadow-[0_0_25px_rgba(255,47,168,0.25)]
+        "
+      >
+        <div className="flex justify-between items-center">
+          <p className="font-semibold text-lg text-white">
+            {a.customer?.name ?? "Cliente"}
+          </p>
+
+          <span className="
+            px-2 py-1 text-xs rounded-md 
+            bg-pink-900/30 text-pink-300 border border-pink-800
+          ">
+            {a.service?.name ?? "Servicio"}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3 text-sm text-slate-400">
+          <span className="flex items-center gap-1">
+            🗓️ {a.date}
+          </span>
+
+          <span className="flex items-center gap-1">
+            ⏰ {a.startTime} → {a.endTime}
+          </span>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+
       </section>
 
     </div>

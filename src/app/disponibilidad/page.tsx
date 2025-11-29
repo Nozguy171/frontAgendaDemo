@@ -25,69 +25,76 @@ export default function DisponibilidadPage() {
 async function reloadAvailability() {
   const res = await fetch("https://api.demoagenda.shop/availability/week?tenant=divasspa");
   const data = await res.json();
-console.log("BUSY SLOTS →", data.busySlots);
-setPro({
-  id: "1",
-  name: "Spa",
-  role: "",
-  phone: "",
-  photoUrl: "",
 
-  hoursWeekStart: data.weekStart,
-  hoursWeekEnd: data.weekEnd,
+  setPro({
+    id: "1",
+    name: "Spa",
+    role: "",
+    phone: "",
+    photoUrl: "",
 
-  hoursSatStart: data.satStart,
-  hoursSatEnd: data.satEnd,
+    hoursWeekStart: data.weekStart,
+    hoursWeekEnd: data.weekEnd,
 
-  workingDays: data.workingDays,
+    hoursSatStart: data.satStart,
+    hoursSatEnd: data.satEnd,
+    hoursSunStart: data.sunStart,
+    hoursSunEnd: data.sunEnd,
 
-  skills: data.services?.map((s: any) => s.name) ?? ["General"],
+    workingDays: data.workingDays,
 
-  slots: data.busySlots.map((s: any) => ({
-    start: s.start,
-    end: s.end,
-    status: "busy",
-  })),
-});
+    skills: data.services?.map((s: any) => s.name) ?? ["General"],
 
+    slots: data.busySlots.map((s: any) => ({
+      id: s.id,          // 👈👈👈 IMPORTANTE
+      start: s.start,
+      end: s.end,
+      status: "busy",
+    })),
+  });
 }
+
 
   // ============================
   // CARGAR DISPONIBILIDAD
   // ============================
-  useEffect(() => {
-    async function load() {
-      const res = await fetch("https://api.demoagenda.shop/availability/week?tenant=divasspa");
-      const data = await res.json();
+useEffect(() => {
+  async function load() {
+    const res = await fetch("https://api.demoagenda.shop/availability/week?tenant=divasspa");
+    const data = await res.json();
 
-setPro({
-  id: "1",
-  name: "Spa",
-  role: "",
-  phone: "",
-  photoUrl: "",
+    setPro({
+      id: "1",
+      name: "Spa",
+      role: "",
+      phone: "",
+      photoUrl: "",
 
-  hoursWeekStart: data.weekStart,
-  hoursWeekEnd: data.weekEnd,
+      hoursWeekStart: data.weekStart,
+      hoursWeekEnd: data.weekEnd,
 
-  hoursSatStart: data.satStart,
-  hoursSatEnd: data.satEnd,
+      hoursSatStart: data.satStart,
+      hoursSatEnd: data.satEnd,
 
-  workingDays: data.workingDays,
+      hoursSunStart: data.sunStart,
+      hoursSunEnd: data.sunEnd,
 
-  skills: data.services?.map((s: any) => s.name) ?? ["General"],
+      workingDays: data.workingDays,
 
-  slots: data.busySlots.map((s: any) => ({
-    start: s.start,
-    end: s.end,
-    status: "busy",
-  })),
-});
+      skills: data.services?.map((s: any) => s.name) ?? ["General"],
 
-    }
+      slots: data.busySlots.map((s: any) => ({
+        id: s.id,        // 👈👈👈 LO MISMO AQUÍ
+        start: s.start,
+        end: s.end,
+        status: "busy",
+      })),
+    });
+  }
 
-    load();
-  }, []);
+  load();
+}, []);
+
 
   function toLocalISO(date: Date) {
   const pad = (n: number) => n.toString().padStart(2, "0");
