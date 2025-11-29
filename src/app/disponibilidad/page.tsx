@@ -123,6 +123,7 @@ useEffect(() => {
 console.log("slot.dateISO:", slot?.dateISO);
 console.log("parseLocal(slot.dateISO):", parseLocal(slot?.dateISO));
 
+
       const resServices = await fetch(
         "https://api.demoagenda.shop/services?tenant=divasspa"
       );
